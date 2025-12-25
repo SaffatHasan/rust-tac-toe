@@ -145,7 +145,7 @@ mod tests {
     fn test_play_move() {
         let mut engine = GameEngine::new();
         let pos = Position::new(0).unwrap();
-        engine.handle_event(GameEvent::PlayMove(pos));
+        let _ = engine.handle_event(GameEvent::PlayMove(pos));
         assert_eq!(engine.board[0], Player::X);
         assert_eq!(engine.current_player, Player::O);
     }
@@ -156,7 +156,7 @@ mod tests {
         let moves = [0, 3, 1, 4, 2]; // X wins
         for &m in &moves {
             let pos = Position::new(m).unwrap();
-            engine.handle_event(GameEvent::PlayMove(pos));
+            let _ = engine.handle_event(GameEvent::PlayMove(pos));
         }
         assert_eq!(engine.winner, Player::X);
     }
@@ -165,8 +165,8 @@ mod tests {
     fn test_reset() {
         let mut engine = GameEngine::new();
         let pos = Position::new(0).unwrap();
-        engine.handle_event(GameEvent::PlayMove(pos));
-        engine.handle_event(GameEvent::Reset);
+        let _ = engine.handle_event(GameEvent::PlayMove(pos));
+        let _ = engine.handle_event(GameEvent::Reset);
         assert_eq!(engine.board, [Player::None; 9]);
         assert_eq!(engine.current_player, Player::X);
         assert_eq!(engine.winner, Player::None);
