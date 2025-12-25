@@ -5,6 +5,15 @@ pub enum Player {
     None,
 }
 
+/// Represents errors that can occur when handling game events.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum EventError {
+    /// Attempted to play a move when the game is already won.
+    GameAlreadyWon,
+    /// Attempted to play a move on an already occupied space.
+    SpaceOccupied,
+}
+
 /// A valid board position for tic-tac-toe, guaranteed to be in the range 0-8.
 ///
 /// This type makes it impossible to construct an invalid position,
@@ -45,17 +54,25 @@ impl GameEngine {
         }
     }
 
-    pub fn handle_event(&mut self, event: GameEvent) {
+    pub fn handle_event(&mut self, event: GameEvent) -> Result<(), EventError> {
         match event {
             GameEvent::PlayMove(pos) => {
-                let pos: usize = pos.to_index();
-                if self.board[pos] == Player::None && self.winner == Player::None {
-                    self.board[pos] = self.current_player;
-                    self.update_winner();
-                    self.update_next_player();
+                if self.winner != Player::None {
+                    return Err(EventError::GameAlreadyWon);
                 }
+                let pos: usize = pos.to_index();
+                if self.board[pos] != Player::None {
+                    return Err(EventError::SpaceOccupied);
+                }
+                self.board[pos] = self.current_player;
+                self.update_winner();
+                self.update_next_player();
+                Ok(())
             }
-            GameEvent::Reset => *self = Self::new(),
+            GameEvent::Reset => {
+                *self = Self::new();
+                Ok(())
+            }
         }
     }
 
