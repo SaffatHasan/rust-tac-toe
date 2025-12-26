@@ -1,30 +1,20 @@
+#[cfg(not(feature = "gui"))]
 mod console;
+
 mod engine;
 
 #[cfg(feature = "gui")]
 mod gui;
 
+#[cfg(not(feature = "gui"))]
 use crate::console::run;
-use crate::engine::GameEngine;
 
+#[cfg(feature = "gui")]
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    let use_gui = args.iter().any(|a| a == "--gui" || a == "-g");
+    crate::gui::run_desktop();
+}
 
-    if use_gui {
-        #[cfg(feature = "gui")]
-        {
-            crate::gui::run_desktop();
-            return;
-        }
-
-        #[cfg(not(feature = "gui"))]
-        {
-            eprintln!(
-                "GUI not enabled in this build — compile with `--features gui` to enable. Running console instead."
-            );
-        }
-    }
-
-    run(GameEngine::new());
+#[cfg(not(feature = "gui"))]
+fn main() {
+    run();
 }

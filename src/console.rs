@@ -3,8 +3,8 @@
 use crate::engine::{EventError, GameEngine, GameEvent, GameStatus, Position};
 use std::io::{self, Write};
 
-pub fn run(engine: GameEngine) {
-    let mut engine = engine;
+pub fn run() {
+    let mut engine = GameEngine::new();
 
     loop {
         print_board(&engine);

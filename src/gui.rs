@@ -104,14 +104,16 @@ impl TicTacToeApp {
                         Player::None => ("", egui::Color32::BLACK),
                     };
 
-                    let can_click = self.engine.status == GameStatus::Ongoing && cell == Player::None;
+                    let can_click =
+                        self.engine.status == GameStatus::Ongoing && cell == Player::None;
 
                     let mut rich = egui::RichText::new(symbol).size((cell_size * 0.5).max(18.0));
                     if cell != Player::None {
                         rich = rich.color(color).strong();
                     }
 
-                    let mut button = egui::Button::new(rich).min_size(egui::vec2(cell_size, cell_size));
+                    let mut button =
+                        egui::Button::new(rich).min_size(egui::vec2(cell_size, cell_size));
 
                     // Highlight winning cells even if not clickable
                     if let Some([a, b, c]) = winning {
@@ -179,47 +181,51 @@ pub fn run_desktop() {
 
 #[cfg(test)]
 mod gui_unit_tests {
-        use super::*;
-        use crate::engine::Player;
+    use super::*;
+    use crate::engine::Player;
 
-        #[test]
-        fn compute_cell_size_min_clamps() {
-                let avail = egui::vec2(100.0, 300.0);
-                let s = compute_cell_size(avail);
-                assert!(s >= MIN_CELL);
-        }
+    #[test]
+    fn compute_cell_size_min_clamps() {
+        let avail = egui::vec2(100.0, 300.0);
+        let s = compute_cell_size(avail);
+        assert!(s >= MIN_CELL);
+    }
 
-        #[test]
-        fn compute_cell_size_max_clamps() {
-                let avail = egui::vec2(1200.0, 1000.0);
-                let s = compute_cell_size(avail);
-                assert!(s <= MAX_CELL);
-        }
+    #[test]
+    fn compute_cell_size_max_clamps() {
+        let avail = egui::vec2(1200.0, 1000.0);
+        let s = compute_cell_size(avail);
+        assert!(s <= MAX_CELL);
+    }
 
-        #[test]
-        fn compute_cell_size_expected_value() {
-                let avail = egui::vec2(360.0, 500.0);
-                let s = compute_cell_size(avail);
-                // expected roughly (360 - 24) / 3 = 112
-                assert!((s - 112.0).abs() < 2.0);
-        }
+    #[test]
+    fn compute_cell_size_expected_value() {
+        let avail = egui::vec2(360.0, 500.0);
+        let s = compute_cell_size(avail);
+        // expected roughly (360 - 24) / 3 = 112
+        assert!((s - 112.0).abs() < 2.0);
+    }
 
-        #[test]
-        fn winning_line_detects_horizontal_and_diagonal() {
-                let mut b = [Player::None; 9];
-                b[0] = Player::X; b[1] = Player::X; b[2] = Player::X;
-                assert_eq!(winning_line(&b), Some([0,1,2]));
+    #[test]
+    fn winning_line_detects_horizontal_and_diagonal() {
+        let mut b = [Player::None; 9];
+        b[0] = Player::X;
+        b[1] = Player::X;
+        b[2] = Player::X;
+        assert_eq!(winning_line(&b), Some([0, 1, 2]));
 
-                let mut b2 = [Player::None; 9];
-                b2[0] = Player::O; b2[4] = Player::O; b2[8] = Player::O;
-                assert_eq!(winning_line(&b2), Some([0,4,8]));
-        }
+        let mut b2 = [Player::None; 9];
+        b2[0] = Player::O;
+        b2[4] = Player::O;
+        b2[8] = Player::O;
+        assert_eq!(winning_line(&b2), Some([0, 4, 8]));
+    }
 
-        #[test]
-        fn winning_line_none_when_no_winner() {
-                let b = [Player::None; 9];
-                assert_eq!(winning_line(&b), None);
-        }
+    #[test]
+    fn winning_line_none_when_no_winner() {
+        let b = [Player::None; 9];
+        assert_eq!(winning_line(&b), None);
+    }
 }
 
 /*
