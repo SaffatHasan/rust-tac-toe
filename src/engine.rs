@@ -18,6 +18,7 @@ pub enum EventError {
 ///
 /// This type makes it impossible to construct an invalid position,
 /// ensuring that only valid board indices can be used.
+#[derive(Copy, Clone)]
 pub struct Position(u8);
 
 impl Position {
@@ -34,6 +35,7 @@ impl Position {
     }
 }
 
+#[derive(Copy, Clone)]
 pub enum GameEvent {
     PlayMove(Position),
     Reset,
@@ -55,15 +57,14 @@ impl GameEngine {
     }
 
     pub fn handle_event(&mut self, event: GameEvent) -> Result<(), EventError> {
+        let is_event_valid: Result<(), EventError> = self.validate_event(event);
+        if is_event_valid.is_err() {
+            return is_event_valid;
+        }
+
         match event {
             GameEvent::PlayMove(pos) => {
-                if self.winner != Player::None {
-                    return Err(EventError::GameAlreadyWon);
-                }
                 let pos: usize = pos.to_index();
-                if self.board[pos] != Player::None {
-                    return Err(EventError::SpaceOccupied);
-                }
                 self.board[pos] = self.current_player;
                 self.update_winner();
                 self.update_next_player();
@@ -73,6 +74,22 @@ impl GameEngine {
                 *self = Self::new();
                 Ok(())
             }
+        }
+    }
+
+    pub fn validate_event(&self, event: GameEvent) -> Result<(), EventError> {
+        match event {
+            GameEvent::PlayMove(pos) => {
+                if self.winner != Player::None {
+                    return Err(EventError::GameAlreadyWon);
+                }
+                let pos: usize = pos.to_index();
+                if self.board[pos] != Player::None {
+                    return Err(EventError::SpaceOccupied);
+                }
+                Ok(())
+            }
+            GameEvent::Reset => Ok(()),
         }
     }
 

@@ -23,48 +23,9 @@ pub fn run(engine: GameEngine) {
             }
         }
         println!("Current player: {:?}", engine.current_player);
-        print!("Enter your move (0-8) or 'r' to reset: ");
-        io::stdout().flush().unwrap();
-
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
-        let input = input.trim();
-
-        if input == "r" {
-            match engine.handle_event(GameEvent::Reset) {
-                Ok(()) => {
-                    continue;
-                }
-                Err(_) => {
-                    // Reset should never fail, but handle it just in case
-                    eprintln!("Error: Failed to reset game.");
-                    break;
-                }
-            }
-        }
-
-        match input.parse::<u8>() {
-            Ok(pos) => {
-                if let Some(position) = Position::new(pos) {
-                    match engine.handle_event(GameEvent::PlayMove(position)) {
-                        Ok(()) => {
-                            // Move was successful
-                        }
-                        Err(EventError::GameAlreadyWon) => {
-                            println!("Error: The game is already won! Press 'r' to reset.");
-                        }
-                        Err(EventError::SpaceOccupied) => {
-                            println!("Error: That space is already occupied. Try another.");
-                        }
-                    }
-                } else {
-                    println!("Invalid position. Please enter a number between 0 and 8.");
-                }
-            }
-            Err(_) => {
-                println!("Invalid input. Please enter a number between 0 and 8 or 'r' to reset.");
-            }
-        }
+        // Let all validation happen inside get_input
+        let event: GameEvent = get_input(&engine);
+        let _ = engine.handle_event(event);
     }
 }
 
@@ -78,6 +39,50 @@ pub fn print_board(engine: &GameEngine) {
         print!(" {} ", symbol);
         if i % 3 == 2 {
             println!();
+        }
+    }
+}
+
+pub fn get_input(engine: &GameEngine) -> GameEvent {
+    loop {
+        print!("Enter your move (0-8) or 'r' to reset: ");
+        io::stdout().flush().unwrap();
+
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
+        let input = input.trim();
+
+        if input == "r" {
+            return GameEvent::Reset;
+        }
+
+        let Ok(pos) = input.parse::<u8>() else {
+            println!("Invalid input. Please enter a number between 0 and 8 or 'r' to reset.");
+            continue;
+        };
+
+        let Some(position) = Position::new(pos) else {
+            println!("Invalid position. Please enter a number between 0 and 8.");
+            continue;
+        };
+
+        let move_event: GameEvent = GameEvent::PlayMove(position);
+
+        match engine.validate_event(move_event) {
+            Ok(()) => {
+                return move_event;
+            }
+            Err(error) => {
+                match error {
+                    EventError::GameAlreadyWon => {
+                        println!("Error: The game is already won! Press 'r' to reset.");
+                    }
+                    EventError::SpaceOccupied => {
+                        println!("Error: That space is already occupied. Try another.");
+                    }
+                }
+                continue;
+            }
         }
     }
 }
