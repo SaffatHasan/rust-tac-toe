@@ -5,6 +5,13 @@ pub enum Player {
     None,
 }
 
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum GameStatus {
+    Win(Player),
+    Draw,
+    Ongoing,
+}
+
 /// Represents errors that can occur when handling game events.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum EventError {
@@ -44,7 +51,7 @@ pub enum GameEvent {
 pub struct GameEngine {
     pub board: [Player; 9],
     pub current_player: Player,
-    pub winner: Player,
+    pub status: GameStatus,
 }
 
 impl GameEngine {
@@ -52,7 +59,7 @@ impl GameEngine {
         Self {
             board: [Player::None; 9],
             current_player: Player::X,
-            winner: Player::None,
+            status: GameStatus::Ongoing,
         }
     }
 
@@ -66,8 +73,8 @@ impl GameEngine {
             GameEvent::PlayMove(pos) => {
                 let pos: usize = pos.to_index();
                 self.board[pos] = self.current_player;
-                self.update_winner();
-                self.update_next_player();
+                self.update_game_status();
+                self.update_current_player();
                 Ok(())
             }
             GameEvent::Reset => {
@@ -80,7 +87,7 @@ impl GameEngine {
     pub fn validate_event(&self, event: GameEvent) -> Result<(), EventError> {
         match event {
             GameEvent::PlayMove(pos) => {
-                if self.winner != Player::None {
+                if self.status != GameStatus::Ongoing {
                     return Err(EventError::GameAlreadyWon);
                 }
                 let pos: usize = pos.to_index();
@@ -93,7 +100,7 @@ impl GameEngine {
         }
     }
 
-    pub fn update_next_player(&mut self) {
+    pub fn update_current_player(&mut self) {
         self.current_player = match self.current_player {
             Player::X => Player::O,
             Player::O => Player::X,
@@ -101,7 +108,12 @@ impl GameEngine {
         };
     }
 
-    pub fn update_winner(&mut self) {
+    pub fn update_game_status(&mut self) {
+        if self.board.iter().all(|&p| p != Player::None) {
+            self.status = GameStatus::Draw;
+            return;
+        }
+
         let winning_combinations: [[usize; 3]; 8] = [
             // horizontal
             [0, 1, 2],
@@ -121,7 +133,7 @@ impl GameEngine {
                 && self.board[combo[0]] == self.board[combo[1]]
                 && self.board[combo[1]] == self.board[combo[2]]
             {
-                self.winner = self.board[combo[0]];
+                self.status = GameStatus::Win(self.board[combo[0]]);
                 return;
             }
         }
@@ -144,9 +156,9 @@ mod tests {
     fn test_update_next_player() {
         let mut engine = GameEngine::new();
         assert_eq!(engine.current_player, Player::X);
-        engine.update_next_player();
+        engine.update_current_player();
         assert_eq!(engine.current_player, Player::O);
-        engine.update_next_player();
+        engine.update_current_player();
         assert_eq!(engine.current_player, Player::X);
     }
 
@@ -154,7 +166,7 @@ mod tests {
     fn test_update_next_player_none() {
         let mut engine = GameEngine::new();
         engine.current_player = Player::None;
-        engine.update_next_player();
+        engine.update_current_player();
         assert_eq!(engine.current_player, Player::None);
     }
 
@@ -175,7 +187,18 @@ mod tests {
             let pos = Position::new(m).unwrap();
             let _ = engine.handle_event(GameEvent::PlayMove(pos));
         }
-        assert_eq!(engine.winner, Player::X);
+        assert_eq!(engine.status, GameStatus::Win(Player::X));
+    }
+
+    #[test]
+    fn test_draw_detection() {
+        let mut engine = GameEngine::new();
+        let moves = [0, 1, 2, 4, 3, 5, 7, 6, 8]; // Draw
+        for &m in &moves {
+            let pos = Position::new(m).unwrap();
+            let _ = engine.handle_event(GameEvent::PlayMove(pos));
+        }
+        assert_eq!(engine.status, GameStatus::Draw);
     }
 
     #[test]
@@ -186,6 +209,6 @@ mod tests {
         let _ = engine.handle_event(GameEvent::Reset);
         assert_eq!(engine.board, [Player::None; 9]);
         assert_eq!(engine.current_player, Player::X);
-        assert_eq!(engine.winner, Player::None);
+        assert_eq!(engine.status, GameStatus::Ongoing);
     }
 }
