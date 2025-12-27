@@ -1,5 +1,5 @@
 run:
-	cargo run
+	cargo run --features console
 
 run-gui:
 	cargo run --features gui

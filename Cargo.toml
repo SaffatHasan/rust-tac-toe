@@ -19,6 +19,8 @@ default = []
 gui = ["eframe"]
 # Enable WASM support with JS interop
 wasm = ["wasm-bindgen", "serde", "serde_json"]
+# Enable console
+console = []
 
 [target.'cfg(windows)'.dependencies]
 # Ensure `winapi` features required by eframe are enabled on Windows
