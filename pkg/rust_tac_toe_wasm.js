@@ -52,23 +52,6 @@ export class WasmGameEngine {
         wasm.__wbg_wasmgameengine_free(ptr, 0);
     }
     /**
-     * Get the game status
-     * Returns: "Ongoing", "Draw", or "WinX" / "WinO"
-     * @returns {string}
-     */
-    get_status() {
-        let deferred1_0;
-        let deferred1_1;
-        try {
-            const ret = wasm.wasmgameengine_get_status(this.__wbg_ptr);
-            deferred1_0 = ret[0];
-            deferred1_1 = ret[1];
-            return getStringFromWasm0(ret[0], ret[1]);
-        } finally {
-            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-        }
-    }
-    /**
      * Check if a move is valid at the given position
      * @param {number} position
      * @returns {boolean}
@@ -76,22 +59,6 @@ export class WasmGameEngine {
     is_valid_move(position) {
         const ret = wasm.wasmgameengine_is_valid_move(this.__wbg_ptr, position);
         return ret !== 0;
-    }
-    /**
-     * Get the current player ("X" or "O")
-     * @returns {string}
-     */
-    get_current_player() {
-        let deferred1_0;
-        let deferred1_1;
-        try {
-            const ret = wasm.wasmgameengine_get_current_player(this.__wbg_ptr);
-            deferred1_0 = ret[0];
-            deferred1_1 = ret[1];
-            return getStringFromWasm0(ret[0], ret[1]);
-        } finally {
-            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-        }
     }
     /**
      * Create a new game
@@ -109,23 +76,6 @@ export class WasmGameEngine {
         const ret = wasm.wasmgameengine_reset(this.__wbg_ptr);
         if (ret[1]) {
             throw takeFromExternrefTable0(ret[0]);
-        }
-    }
-    /**
-     * Get the board state as a JSON string
-     * Board layout: [0, 1, 2, 3, 4, 5, 6, 7, 8]
-     * @returns {string}
-     */
-    get_board() {
-        let deferred1_0;
-        let deferred1_1;
-        try {
-            const ret = wasm.wasmgameengine_get_board(this.__wbg_ptr);
-            deferred1_0 = ret[0];
-            deferred1_1 = ret[1];
-            return getStringFromWasm0(ret[0], ret[1]);
-        } finally {
-            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
         }
     }
     /**
