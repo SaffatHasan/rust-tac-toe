@@ -45,19 +45,28 @@ pub fn start_new_game(engine: &mut GameEngine) -> bool {
 }
 
 pub fn print_board(engine: &GameEngine) {
-    for i in 0..9 {
-        let symbol = match engine.board[i] {
+    for i in (0..9).step_by(3) {
+        // Map the Player enum to a string for display
+        let get_char = |idx: usize| match engine.board[idx] {
             Player::X => "X",
             Player::O => "O",
-            Player::None => ".",
+            Player::None => " ", // Space looks cleaner than a dot
         };
-        print!(" {} ", symbol);
-        if i % 3 == 2 {
-            println!();
+
+        // Print the row with vertical dividers
+        println!(
+            " {} | {} | {} ",
+            get_char(i),
+            get_char(i + 1),
+            get_char(i + 2)
+        );
+
+        // Print horizontal divider between rows (but not after the last row)
+        if i < 6 {
+            println!("-----------");
         }
     }
 }
-
 pub fn get_input(engine: &GameEngine) -> GameEvent {
     loop {
         print!("Enter your move (0-8) or 'r' to reset: ");
