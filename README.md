@@ -29,7 +29,7 @@ See the [Makefile](Makefile) for building and running commands.
 
 | CLI                 | GUI                  | Web (WASM)          |
 | ------------------- | -------------------- | ------------------- |
-| ![](assets/gui.png) | ![](assets/wasm.png) | ![](assets/cli.png) |
+| ![](assets/cli.png) | ![](assets/gui.png) | ![](assets/wasm.png) |
 
 ## Size Benchmarks
 
