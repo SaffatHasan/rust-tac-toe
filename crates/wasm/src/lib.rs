@@ -35,78 +35,9 @@ impl WasmGameEngine {
             .map_err(|e| format!("{:?}", e))
     }
 
-    /// Get the board state as a JSON string
-    /// Board layout: [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    pub fn get_board(&self) -> String {
-        let board: Vec<String> = self
-            .engine
-            .board
-            .iter()
-            .map(|p| match p {
-                Player::X => "X".to_string(),
-                Player::O => "O".to_string(),
-                Player::None => "".to_string(),
-            })
-            .collect();
-
-        serde_json::to_string(&board).unwrap_or_else(|_| "[]".to_string())
-    }
-
-    /// Get the current player ("X" or "O")
-    pub fn get_current_player(&self) -> String {
-        match self.engine.current_player {
-            Player::X => "X".to_string(),
-            Player::O => "O".to_string(),
-            Player::None => "None".to_string(),
-        }
-    }
-
-    /// Get the game status
-    /// Returns: "Ongoing", "Draw", or "WinX" / "WinO"
-    pub fn get_status(&self) -> String {
-        match self.engine.status {
-            GameStatus::Ongoing => "Ongoing".to_string(),
-            GameStatus::Draw => "Draw".to_string(),
-            GameStatus::Win(Player::X) => "WinX".to_string(),
-            GameStatus::Win(Player::O) => "WinO".to_string(),
-            GameStatus::Win(Player::None) => "None".to_string(),
-        }
-    }
-
     /// Get the complete game state as JSON
     pub fn get_state(&self) -> String {
-        let board: Vec<String> = self
-            .engine
-            .board
-            .iter()
-            .map(|p| match p {
-                Player::X => "X".to_string(),
-                Player::O => "O".to_string(),
-                Player::None => "".to_string(),
-            })
-            .collect();
-
-        let current_player = match self.engine.current_player {
-            Player::X => "X",
-            Player::O => "O",
-            Player::None => "None",
-        };
-
-        let status = match self.engine.status {
-            GameStatus::Ongoing => "Ongoing",
-            GameStatus::Draw => "Draw",
-            GameStatus::Win(Player::X) => "WinX",
-            GameStatus::Win(Player::O) => "WinO",
-            GameStatus::Win(Player::None) => "None",
-        };
-
-        let state = serde_json::json!({
-            "board": board,
-            "currentPlayer": current_player,
-            "status": status,
-        });
-
-        state.to_string()
+        return serde_json::to_string(&self.engine).unwrap_or_else(|_| "{}".to_string());
     }
 
     /// Check if a move is valid at the given position
@@ -122,4 +53,30 @@ impl WasmGameEngine {
 #[wasm_bindgen(start)]
 pub fn init() {
     // Initialize WASM module
+}
+
+// tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rust_tac_toe_engine::{GameEngine, GameEvent, Position};
+
+    #[test]
+    fn test_get_state() {
+        let mut engine = GameEngine::new();
+
+        for &p in [0, 1, 3, 4, 6].iter() {
+            engine
+                .handle_event(GameEvent::PlayMove(Position::new(p).unwrap()))
+                .unwrap();
+        }
+
+        let wasm_engine = WasmGameEngine { engine };
+
+        let state_json = wasm_engine.get_state();
+        let expected_json =
+            r#"{"board":["X","O","","X","O","","X","",""],"currentPlayer":"O","status":"WinX"}"#;
+
+        assert_eq!(state_json, expected_json);
+    }
 }

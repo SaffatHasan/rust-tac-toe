@@ -1,15 +1,41 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "wasm", derive(serde::Serialize))]
 pub enum Player {
     X,
     O,
+    #[serde(rename = "")]
     None,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
+#[cfg_attr(feature = "wasm", derive(serde::Serialize))]
 pub enum GameStatus {
     Win(Player),
     Draw,
     Ongoing,
+}
+
+fn serialize_game_status<S>(game_status: &GameStatus, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    match game_status {
+        GameStatus::Ongoing => serializer.serialize_str("Ongoing"),
+        GameStatus::Draw => serializer.serialize_str("Draw"),
+        GameStatus::Win(player) => serialize_winner(player, serializer),
+    }
+}
+
+fn serialize_winner<S>(player: &Player, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let s_str = match player {
+        Player::X => "WinX",
+        Player::O => "WinO",
+        _ => "None",
+    };
+    serializer.serialize_str(s_str)
 }
 
 /// Represents errors that can occur when handling game events.
@@ -49,9 +75,12 @@ pub enum GameEvent {
 }
 
 #[derive(Copy, Clone)]
+#[cfg_attr(feature = "wasm", derive(serde::Serialize))]
+#[serde(rename_all = "camelCase")]
 pub struct GameEngine {
     pub board: [Player; 9],
     pub current_player: Player,
+    #[serde(serialize_with = "serialize_game_status")]
     pub status: GameStatus,
 }
 
@@ -144,6 +173,7 @@ impl GameEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json;
 
     #[test]
     fn test_position_new() {
@@ -211,5 +241,17 @@ mod tests {
         assert_eq!(engine.board, [Player::None; 9]);
         assert_eq!(engine.current_player, Player::X);
         assert_eq!(engine.status, GameStatus::Ongoing);
+    }
+
+    #[test]
+    fn test_serialize_game_status() {
+        let mut engine = GameEngine::new();
+        engine.status = GameStatus::Win(Player::O);
+        let win = serde_json::to_string(&engine).unwrap();
+
+        assert_eq!(
+            win,
+            r#"{"board":["","","","","","","","",""],"currentPlayer":"X","status":"WinO"}"#
+        );
     }
 }
