@@ -30,3 +30,10 @@ See the [Makefile](Makefile) for building and running commands.
 | CLI                 | GUI                  | Web (WASM)          |
 | ------------------- | -------------------- | ------------------- |
 | ![](assets/gui.png) | ![](assets/wasm.png) | ![](assets/cli.png) |
+
+## Size Benchmarks
+
+- Standard: 22kB (9.9kB gzipped)
+- `wee_alloc`: 15.7kB (7.6kB gzipped)
+
+23% reduction in transfer size.
