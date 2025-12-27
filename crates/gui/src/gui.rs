@@ -3,8 +3,8 @@
 //! Provides a desktop GUI using the GameEngine from engine.rs.
 //! For wasm target later, enable eframe's `wasm` feature and use the web start API.
 
-use crate::engine::{GameEngine, GameEvent, GameStatus, Player, Position};
 use eframe::{egui, App};
+use rust_tac_toe_engine::{GameEngine, GameEvent, GameStatus, Player, Position};
 
 // Layout constants
 const MIN_CELL: f32 = 40.0;

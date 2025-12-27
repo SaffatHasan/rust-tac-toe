@@ -1,31 +1,4 @@
-[package]
-name = "rust-tac-toe"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-# WASM bindings for JavaScript interop
-wasm-bindgen = { version = "0.2", optional = true }
-serde = { version = "1.0", features = ["derive"], optional = true }
-serde_json = { version = "1.0", optional = true }
-
-# Optional GUI dependency (enable with `--features gui`).
-# You can adjust the version as needed for your environment.
-eframe = { version = "0.24", optional = true }
-
-[features]
-default = []
-# Enable desktop GUI (eframe).
-gui = ["eframe"]
-# Enable WASM support with JS interop
-wasm = ["wasm-bindgen", "serde", "serde_json"]
-# Enable console
-console = []
-
-[target.'cfg(windows)'.dependencies]
-# Ensure `winapi` features required by eframe are enabled on Windows
-winapi = { version = "0.3", features = ["winuser", "windef"] }
-
-[lib]
-name = "rust_tac_toe_wasm"
-crate-type = ["cdylib", "rlib"]
+[workspace]
+members = ["crates/engine", "crates/cli", "crates/gui", "crates/wasm"]
+# Ensures modern feature resolution
+resolver = "2"

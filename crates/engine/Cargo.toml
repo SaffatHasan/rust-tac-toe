@@ -1,0 +1,13 @@
+[package]
+name = "rust-tac-toe-engine"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[features]
+wasm = []
+
+
+[lib]
+name = "rust_tac_toe_engine"

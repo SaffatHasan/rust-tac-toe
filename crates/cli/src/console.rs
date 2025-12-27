@@ -1,6 +1,6 @@
 // Console interface for the tic-tac-toe game.
 
-use crate::engine::{EventError, GameEngine, GameEvent, GameStatus, Position};
+use rust_tac_toe_engine::{EventError, GameEngine, GameEvent, GameStatus, Player, Position};
 use std::io::{self, Write};
 
 pub fn run() {
@@ -47,9 +47,9 @@ pub fn start_new_game(engine: &mut GameEngine) -> bool {
 pub fn print_board(engine: &GameEngine) {
     for i in 0..9 {
         let symbol = match engine.board[i] {
-            crate::engine::Player::X => "X",
-            crate::engine::Player::O => "O",
-            crate::engine::Player::None => ".",
+            Player::X => "X",
+            Player::O => "O",
+            Player::None => ".",
         };
         print!(" {} ", symbol);
         if i % 3 == 2 {

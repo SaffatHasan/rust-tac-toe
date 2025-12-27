@@ -1,19 +1,14 @@
-mod engine;
-
 // Export engine types and functions
-pub use engine::{EventError, GameEngine, GameEvent, GameStatus, Player, Position};
+pub use rust_tac_toe_engine::{EventError, GameEngine, GameEvent, GameStatus, Player, Position};
 
-#[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
 /// WASM-friendly wrapper for the game engine
-#[cfg(feature = "wasm")]
 #[wasm_bindgen]
 pub struct WasmGameEngine {
     engine: GameEngine,
 }
 
-#[cfg(feature = "wasm")]
 #[wasm_bindgen]
 impl WasmGameEngine {
     /// Create a new game
@@ -124,7 +119,6 @@ impl WasmGameEngine {
     }
 }
 
-#[cfg(feature = "wasm")]
 #[wasm_bindgen(start)]
 pub fn init() {
     // Initialize WASM module
