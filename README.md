@@ -6,36 +6,8 @@ Learning project implementing Tic-Tac-Toe in Rust with multiple interface option
 
 - **Console Interface**: Play in the terminal
 - **GUI Interface**: Desktop GUI using eframe
-- **WebAssembly**: Play in the browser!
+- **WebAssembly**: Play in the browser ([Try me](https://saffathasan.github.io/rust-tac-toe/))
 
 ## Building and Running
 
-### Console Version
-
-```bash
-cargo run
-```
-
-### GUI Version
-
-```bash
-cargo run --features gui
-```
-
-### WebAssembly Version
-
-#### Requirements
-
-- `wasm-pack`: Install with `cargo install wasm-pack`
-
-#### Build
-
-```bash
-./wasm-build.sh
-```
-
-Or manually:
-
-```bash
-wasm-pack build --target bundler --release -- --features wasm
-```
+See the Makefile for building and running commands.

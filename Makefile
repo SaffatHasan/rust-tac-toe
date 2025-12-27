@@ -4,15 +4,14 @@ run-console:
 run-gui:
 	cargo run --bin rust-tac-toe-gui
 
-run-wasm: build-wasm
-	echo "Starting local server at http://localhost:8000"
-	cd crates/wasm && python -m http.server 8000
+run-wasm: crates/wasm/pkg
+	@cd crates/wasm && python -m http.server 8000 --bind 127.0.0.1
+
+crates/wasm/pkg: crates/wasm/Cargo.toml crates/wasm/src/lib.rs
+	wasm-pack build crates/wasm --target web --release
 
 build:
 	cargo build
-
-build-wasm:
-	wasm-pack build crates/wasm --target web --release
 
 test:
 	cargo test
