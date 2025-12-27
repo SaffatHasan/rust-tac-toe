@@ -5,7 +5,8 @@ run-gui:
 	cargo run --bin rust-tac-toe-gui
 
 run-wasm: build-wasm
-	python -m http.server 8000
+	echo "Starting local server at http://localhost:8000"
+	cd crates/wasm && python -m http.server 8000
 
 build:
 	cargo build
