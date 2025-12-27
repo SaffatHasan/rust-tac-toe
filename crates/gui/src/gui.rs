@@ -182,7 +182,7 @@ pub fn run_desktop() {
 #[cfg(test)]
 mod gui_unit_tests {
     use super::*;
-    use crate::engine::Player;
+    use rust_tac_toe_engine::Player;
 
     #[test]
     fn compute_cell_size_min_clamps() {
