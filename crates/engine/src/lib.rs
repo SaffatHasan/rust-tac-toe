@@ -139,11 +139,20 @@ impl GameEngine {
     }
 
     pub fn update_game_status(&mut self) {
+        self.check_winner();
+
+        if self.status != GameStatus::Ongoing {
+            return;
+        }
+
+        // Check draw (if no winner)
         if self.board.iter().all(|&p| p != Player::None) {
             self.status = GameStatus::Draw;
             return;
         }
+    }
 
+    pub fn check_winner(&mut self) {
         let winning_combinations: [[usize; 3]; 8] = [
             // horizontal
             [0, 1, 2],
@@ -230,6 +239,17 @@ mod tests {
             let _ = engine.handle_event(GameEvent::PlayMove(pos));
         }
         assert_eq!(engine.status, GameStatus::Draw);
+    }
+
+    #[test]
+    fn test_winner_detection_full_board() {
+        let mut engine: GameEngine = GameEngine::new();
+        let moves = [0, 1, 2, 4, 3, 5, 7, 8, 6]; // X wins and fills the board
+        for &m in &moves {
+            let pos = Position::new(m).unwrap();
+            let _ = engine.handle_event(GameEvent::PlayMove(pos));
+        }
+        assert_eq!(engine.status, GameStatus::Win(Player::X));
     }
 
     #[test]
