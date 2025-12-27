@@ -1,3 +1,7 @@
+// Save wasm space by using a smaller allocator
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
 // Export engine types and functions
 pub use rust_tac_toe_engine::{EventError, GameEngine, GameEvent, GameStatus, Player, Position};
 
