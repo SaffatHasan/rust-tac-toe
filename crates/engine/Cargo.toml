@@ -5,9 +5,5 @@ edition = "2024"
 
 [dependencies]
 
-[features]
-wasm = []
-
-
 [lib]
 name = "rust_tac_toe_engine"

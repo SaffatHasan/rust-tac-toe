@@ -1,5 +1,4 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
-#[cfg_attr(feature = "wasm", derive(serde::Serialize, serde::Deserialize))]
 pub enum Player {
     X,
     O,
@@ -7,7 +6,6 @@ pub enum Player {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-#[cfg_attr(feature = "wasm", derive(serde::Serialize, serde::Deserialize))]
 pub enum GameStatus {
     Win(Player),
     Draw,
@@ -51,7 +49,6 @@ pub enum GameEvent {
 }
 
 #[derive(Copy, Clone)]
-#[cfg_attr(feature = "wasm", derive(serde::Serialize, serde::Deserialize))]
 pub struct GameEngine {
     pub board: [Player; 9],
     pub current_player: Player,
