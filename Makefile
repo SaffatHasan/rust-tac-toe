@@ -1,4 +1,4 @@
-run-console:
+run-cli:
 	cargo run --bin rust-tac-toe-cli
 
 run-gui:
