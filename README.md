@@ -1,6 +1,6 @@
 # rust-tac-toe
 
-Learning project implementing Tic-Tac-Toe in Rust with multiple interface options.
+Learning project implementing `Tic-Tac-Toe` in Rust with multiple interface options.
 
 ## Features
 
@@ -10,4 +10,23 @@ Learning project implementing Tic-Tac-Toe in Rust with multiple interface option
 
 ## Building and Running
 
-See the Makefile for building and running commands.
+See the [Makefile](Makefile) for building and running commands.
+
+## Layout
+
+```text
+.
+├── crates
+│   ├── cli          # Handles CLI
+│   ├── engine       # Core Tic-Tac-Toe logic
+│   ├── gui          # Graphical interface
+│   └── wasm         # WebAssembly build targets
+├── Makefile         # Shortcuts for common tasks (e.g. `make run-gui`)
+└── Cargo.toml       # Workspace configuration
+```
+
+## Screenshots
+
+| CLI                 | GUI                  | Web (WASM)          |
+| ------------------- | -------------------- | ------------------- |
+| ![](assets/gui.png) | ![](assets/wasm.png) | ![](assets/cli.png) |
