@@ -102,10 +102,10 @@ impl TicTacToeApp {
                         None => ("", egui::Color32::BLACK),
                     };
 
-                    let can_click = self.engine.status == GameStatus::Ongoing && cell == None;
+                    let can_click = self.engine.status == GameStatus::Ongoing && cell.is_none();
 
                     let mut rich = egui::RichText::new(symbol).size((cell_size * 0.5).max(18.0));
-                    if cell != None {
+                    if cell.is_some() {
                         rich = rich.color(color).strong();
                     }
 

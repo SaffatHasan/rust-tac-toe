@@ -5,6 +5,15 @@ pub enum Player {
     O,
 }
 
+impl Player {
+    pub fn next(&self) -> Player {
+        match self {
+            Player::X => Player::O,
+            Player::O => Player::X,
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Debug)]
 #[cfg_attr(feature = "wasm", derive(serde::Serialize))]
 #[cfg_attr(feature = "wasm", serde(tag = "type", content = "value"))]
@@ -67,15 +76,16 @@ impl GameEngine {
     }
 
     pub fn play_move(&mut self, pos: Position) -> Result<(), InvalidGameMoveError> {
-        let is_move_valid: Result<(), InvalidGameMoveError> = self.validate_move(pos);
-        if is_move_valid.is_err() {
-            return is_move_valid;
-        }
+        self.validate_move(pos)?;
 
-        let pos: usize = pos.to_index();
-        self.board[pos] = Some(self.current_player);
-        self.update_game_status();
-        self.update_current_player();
+        // Apply Move
+        self.board[pos.to_index()] = Some(self.current_player);
+
+        // Update Game Status
+        self.status = self.calculate_status();
+
+        // Switch Player
+        self.current_player = self.current_player.next();
         Ok(())
     }
 
@@ -84,35 +94,14 @@ impl GameEngine {
             return Err(InvalidGameMoveError::GameAlreadyWon);
         }
         let pos: usize = pos.to_index();
-        if self.board[pos] != None {
+        if self.board[pos].is_some() {
             return Err(InvalidGameMoveError::SpaceOccupied);
         }
         Ok(())
     }
 
-    pub fn update_current_player(&mut self) {
-        self.current_player = match self.current_player {
-            Player::X => Player::O,
-            Player::O => Player::X,
-        };
-    }
-
-    pub fn update_game_status(&mut self) {
-        self.check_winner();
-
-        if self.status != GameStatus::Ongoing {
-            return;
-        }
-
-        // Check draw (if no winner)
-        if self.board.iter().all(|&p| p != None) {
-            self.status = GameStatus::Draw;
-            return;
-        }
-    }
-
-    pub fn check_winner(&mut self) {
-        let winning_combinations: [[usize; 3]; 8] = [
+    pub fn calculate_status(&self) -> GameStatus {
+        const WINNING_COMBINATIONS: [[usize; 3]; 8] = [
             // horizontal
             [0, 1, 2],
             [3, 4, 5],
@@ -126,20 +115,23 @@ impl GameEngine {
             [2, 4, 6],
         ];
 
-        for combo in winning_combinations.iter() {
-            if let (Some(p1), Some(p2), Some(p3)) = (
-                self.board[combo[0]],
-                self.board[combo[1]],
-                self.board[combo[2]],
-            ) {
+        for [a, b, c] in WINNING_COMBINATIONS.iter() {
+            if let (Some(p1), Some(p2), Some(p3)) = (self.board[*a], self.board[*b], self.board[*c])
+            {
                 if p1 == p2 && p2 == p3 {
                     {
-                        self.status = GameStatus::Win(p1);
-                        return;
+                        return GameStatus::Win(p1);
                     }
                 }
             }
         }
+
+        // Check draw (if no winner)
+        if self.board.iter().all(|&p| p.is_some()) {
+            return GameStatus::Draw;
+        }
+
+        return GameStatus::Ongoing;
     }
 }
 
@@ -158,12 +150,8 @@ mod tests {
 
     #[test]
     fn test_update_next_player() {
-        let mut engine = GameEngine::new();
-        assert_eq!(engine.current_player, Player::X);
-        engine.update_current_player();
-        assert_eq!(engine.current_player, Player::O);
-        engine.update_current_player();
-        assert_eq!(engine.current_player, Player::X);
+        assert_eq!(Player::O.next(), Player::X);
+        assert_eq!(Player::X.next(), Player::O);
     }
 
     #[test]
