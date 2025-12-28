@@ -4,7 +4,7 @@
 //! For wasm target later, enable eframe's `wasm` feature and use the web start API.
 
 use eframe::{egui, App};
-use rust_tac_toe_engine::{GameEngine, GameEvent, GameStatus, Player, Position};
+use rust_tac_toe_engine::{GameEngine, GameStatus, Player, Position};
 
 // Layout constants
 const MIN_CELL: f32 = 40.0;
@@ -43,7 +43,7 @@ impl App for TicTacToeApp {
                 .button(egui::RichText::new("🔄 Reset Game").size(16.0))
                 .clicked()
             {
-                let _ = self.engine.handle_event(GameEvent::Reset);
+                self.engine.reset();
             }
         });
     }
@@ -129,7 +129,7 @@ impl TicTacToeApp {
                     if ui.add(button).clicked() {
                         if can_click {
                             if let Some(pos) = Position::new(idx as u8) {
-                                let _ = self.engine.handle_event(GameEvent::PlayMove(pos));
+                                let _ = self.engine.play_move(pos);
                             }
                         }
                     }

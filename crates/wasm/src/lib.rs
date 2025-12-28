@@ -3,7 +3,7 @@
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 // Export engine types and functions
-pub use rust_tac_toe_engine::{EventError, GameEngine, GameEvent, GameStatus, Player, Position};
+pub use rust_tac_toe_engine::{GameEngine, GameStatus, InvalidGameMoveError, Player, Position};
 
 use wasm_bindgen::prelude::*;
 
@@ -27,16 +27,12 @@ impl WasmGameEngine {
     pub fn play_move(&mut self, position: u8) -> Result<(), String> {
         let pos = Position::new(position).ok_or("Invalid position (must be 0-8)".to_string())?;
 
-        self.engine
-            .handle_event(GameEvent::PlayMove(pos))
-            .map_err(|e| format!("{:?}", e))
+        self.engine.play_move(pos).map_err(|e| format!("{:?}", e))
     }
 
     /// Reset the game
-    pub fn reset(&mut self) -> Result<(), String> {
-        self.engine
-            .handle_event(GameEvent::Reset)
-            .map_err(|e| format!("{:?}", e))
+    pub fn reset(&mut self) {
+        self.engine.reset();
     }
 
     /// Get the complete game state as JSON
@@ -50,7 +46,7 @@ impl WasmGameEngine {
             Some(p) => p,
             None => return false,
         };
-        self.engine.validate_event(GameEvent::PlayMove(pos)).is_ok()
+        self.engine.validate_move(pos).is_ok()
     }
 }
 
@@ -63,23 +59,20 @@ pub fn init() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rust_tac_toe_engine::{GameEngine, GameEvent, Position};
+    use rust_tac_toe_engine::{GameEngine, Position};
 
     #[test]
     fn test_get_state() {
         let mut engine = GameEngine::new();
 
         for &p in [0, 1, 3, 4, 6].iter() {
-            engine
-                .handle_event(GameEvent::PlayMove(Position::new(p).unwrap()))
-                .unwrap();
+            let _ = engine.play_move(Position::new(p).unwrap());
         }
 
         let wasm_engine = WasmGameEngine { engine };
 
         let state_json = wasm_engine.get_state();
-        let expected_json =
-            r#"{"board":["X","O","","X","O","","X","",""],"currentPlayer":"O","status":"WinX"}"#;
+        let expected_json = r#"{"board":["X","O","","X","O","","X","",""],"currentPlayer":"","status":{"type":"Win","value":"X"}}"#;
 
         assert_eq!(state_json, expected_json);
     }

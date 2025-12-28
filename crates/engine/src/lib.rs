@@ -18,7 +18,7 @@ pub enum GameStatus {
 
 /// Represents errors that can occur when handling game events.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum EventError {
+pub enum InvalidGameMoveError {
     /// Attempted to play a move when the game is already won.
     GameAlreadyWon,
     /// Attempted to play a move on an already occupied space.
@@ -47,12 +47,6 @@ impl Position {
 }
 
 #[derive(Copy, Clone)]
-pub enum GameEvent {
-    PlayMove(Position),
-    Reset,
-}
-
-#[derive(Copy, Clone)]
 #[cfg_attr(feature = "wasm", derive(serde::Serialize))]
 #[serde(rename_all = "camelCase")]
 pub struct GameEngine {
@@ -70,44 +64,40 @@ impl GameEngine {
         }
     }
 
-    pub fn handle_event(&mut self, event: GameEvent) -> Result<(), EventError> {
-        let is_event_valid: Result<(), EventError> = self.validate_event(event);
-        if is_event_valid.is_err() {
-            return is_event_valid;
-        }
-
-        match event {
-            GameEvent::PlayMove(pos) => {
-                let pos: usize = pos.to_index();
-                self.board[pos] = self.current_player;
-                self.update_game_status();
-                self.update_current_player();
-                Ok(())
-            }
-            GameEvent::Reset => {
-                *self = Self::new();
-                Ok(())
-            }
-        }
+    pub fn reset(&mut self) {
+        *self = Self::new();
     }
 
-    pub fn validate_event(&self, event: GameEvent) -> Result<(), EventError> {
-        match event {
-            GameEvent::PlayMove(pos) => {
-                if self.status != GameStatus::Ongoing {
-                    return Err(EventError::GameAlreadyWon);
-                }
-                let pos: usize = pos.to_index();
-                if self.board[pos] != Player::None {
-                    return Err(EventError::SpaceOccupied);
-                }
-                Ok(())
-            }
-            GameEvent::Reset => Ok(()),
+    pub fn play_move(&mut self, pos: Position) -> Result<(), InvalidGameMoveError> {
+        let is_move_valid: Result<(), InvalidGameMoveError> = self.validate_move(pos);
+        if is_move_valid.is_err() {
+            return is_move_valid;
         }
+
+        let pos: usize = pos.to_index();
+        self.board[pos] = self.current_player;
+        self.update_game_status();
+        self.update_current_player();
+        Ok(())
+    }
+
+    pub fn validate_move(&self, pos: Position) -> Result<(), InvalidGameMoveError> {
+        if self.status != GameStatus::Ongoing {
+            return Err(InvalidGameMoveError::GameAlreadyWon);
+        }
+        let pos: usize = pos.to_index();
+        if self.board[pos] != Player::None {
+            return Err(InvalidGameMoveError::SpaceOccupied);
+        }
+        Ok(())
     }
 
     pub fn update_current_player(&mut self) {
+        if self.status != GameStatus::Ongoing {
+            self.current_player = Player::None;
+            return;
+        }
+
         self.current_player = match self.current_player {
             Player::X => Player::O,
             Player::O => Player::X,
@@ -191,7 +181,7 @@ mod tests {
     fn test_play_move() {
         let mut engine = GameEngine::new();
         let pos = Position::new(0).unwrap();
-        let _ = engine.handle_event(GameEvent::PlayMove(pos));
+        let _ = engine.play_move(pos);
         assert_eq!(engine.board[0], Player::X);
         assert_eq!(engine.current_player, Player::O);
     }
@@ -202,7 +192,7 @@ mod tests {
         let moves = [0, 3, 1, 4, 2]; // X wins
         for &m in &moves {
             let pos = Position::new(m).unwrap();
-            let _ = engine.handle_event(GameEvent::PlayMove(pos));
+            let _ = engine.play_move(pos);
         }
         assert_eq!(engine.status, GameStatus::Win(Player::X));
     }
@@ -213,7 +203,7 @@ mod tests {
         let moves = [0, 1, 2, 4, 3, 5, 7, 6, 8]; // Draw
         for &m in &moves {
             let pos = Position::new(m).unwrap();
-            let _ = engine.handle_event(GameEvent::PlayMove(pos));
+            let _ = engine.play_move(pos);
         }
         assert_eq!(engine.status, GameStatus::Draw);
     }
@@ -224,7 +214,7 @@ mod tests {
         let moves = [0, 1, 2, 4, 3, 5, 7, 8, 6]; // X wins and fills the board
         for &m in &moves {
             let pos = Position::new(m).unwrap();
-            let _ = engine.handle_event(GameEvent::PlayMove(pos));
+            let _ = engine.play_move(pos);
         }
         assert_eq!(engine.status, GameStatus::Win(Player::X));
     }
@@ -233,8 +223,8 @@ mod tests {
     fn test_reset() {
         let mut engine = GameEngine::new();
         let pos = Position::new(0).unwrap();
-        let _ = engine.handle_event(GameEvent::PlayMove(pos));
-        let _ = engine.handle_event(GameEvent::Reset);
+        let _ = engine.play_move(pos);
+        engine.reset();
         assert_eq!(engine.board, [Player::None; 9]);
         assert_eq!(engine.current_player, Player::X);
         assert_eq!(engine.status, GameStatus::Ongoing);
@@ -248,7 +238,7 @@ mod tests {
 
         assert_eq!(
             win,
-            r#"{"board":["","","","","","","","",""],"currentPlayer":"X","status":"WinO"}"#
+            r#"{"board":["","","","","","","","",""],"currentPlayer":"X","status":{"type":"Win","value":"O"}}"#
         );
     }
 }
