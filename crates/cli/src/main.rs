@@ -1,4 +1,4 @@
-mod console;
+mod cli;
 fn main() {
-    console::run();
+    cli::run();
 }
