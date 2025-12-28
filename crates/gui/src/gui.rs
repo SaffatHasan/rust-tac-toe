@@ -59,7 +59,10 @@ impl TicTacToeApp {
                 };
                 ui.label(egui::RichText::new(player_text).size(18.0).strong());
             }
-            GameStatus::Win(winner) => {
+            GameStatus::Win {
+                player: winner,
+                line: _,
+            } => {
                 let winner_text = match winner {
                     Player::X => "🎉 X Wins!",
                     Player::O => "🎉 O Wins!",
@@ -84,8 +87,8 @@ impl TicTacToeApp {
 
     fn render_board(&mut self, ui: &mut egui::Ui, cell_size: f32) {
         // If game won, compute winning line to highlight
-        let winning = if let GameStatus::Win(_) = self.engine.status {
-            winning_line(&self.engine.board)
+        let winning = if let GameStatus::Win { line, .. } = self.engine.status {
+            Some(line)
         } else {
             None
         };
@@ -136,29 +139,6 @@ impl TicTacToeApp {
     }
 }
 
-fn winning_line(board: &[Option<Player>; 9]) -> Option<[usize; 3]> {
-    let winning_combinations: [[usize; 3]; 8] = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-
-    for combo in winning_combinations {
-        if let (Some(p1), Some(p2), Some(p3)) = (board[combo[0]], board[combo[1]], board[combo[2]])
-        {
-            if p1 == p2 && p2 == p3 {
-                return Some(combo);
-            }
-        }
-    }
-    None
-}
-
 fn compute_cell_size(avail: egui::Vec2) -> f32 {
     let cell_w = (avail.x - 24.0) / 3.0;
     let cell_h = ((avail.y - RESERVED_VERTICAL) / 3.0).max(MIN_CELL);
@@ -179,7 +159,6 @@ pub fn run_desktop() {
 #[cfg(test)]
 mod gui_unit_tests {
     use super::*;
-    use rust_tac_toe_engine::Player;
 
     #[test]
     fn compute_cell_size_min_clamps() {
@@ -201,27 +180,6 @@ mod gui_unit_tests {
         let s = compute_cell_size(avail);
         // expected roughly (360 - 24) / 3 = 112
         assert!((s - 112.0).abs() < 2.0);
-    }
-
-    #[test]
-    fn winning_line_detects_horizontal_and_diagonal() {
-        let mut b = [None; 9];
-        b[0] = Some(Player::X);
-        b[1] = Some(Player::X);
-        b[2] = Some(Player::X);
-        assert_eq!(winning_line(&b), Some([0, 1, 2]));
-
-        let mut b2 = [None; 9];
-        b2[0] = Some(Player::O);
-        b2[4] = Some(Player::O);
-        b2[8] = Some(Player::O);
-        assert_eq!(winning_line(&b2), Some([0, 4, 8]));
-    }
-
-    #[test]
-    fn winning_line_none_when_no_winner() {
-        let b: [Option<Player>; 9] = [None; 9];
-        assert_eq!(winning_line(&b), None);
     }
 }
 

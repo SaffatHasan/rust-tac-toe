@@ -46,6 +46,8 @@ function renderBoard() {
   }
 
   // Otherwise update existing
+  const isGameOver = gameStatus !== "Ongoing";
+  const winningLine = gameStatus === "Win" ? state.status.value.line : [];
   cellElements.forEach((cell, i) => {
     const val = board[i];
     cell.textContent = val;
@@ -56,6 +58,10 @@ function renderBoard() {
     const isGameOver = gameStatus !== "Ongoing";
     const isOccupied = val !== undefined;
     cell.disabled = isGameOver || isOccupied;
+
+    if (winningLine.includes(i)) {
+      cell.classList.add("winning-cell");
+    }
   });
 }
 
@@ -73,7 +79,7 @@ function updateStatus() {
     statusMessage.textContent = "🤝 It's a Draw!";
     statusMessage.className = "status-message draw";
   } else if (state.status.type === "Win") {
-    const winner = state.status.value;
+    const winner = state.status.value.player;
     statusMessage.textContent = `🎉 ${winner} Wins!`;
     statusMessage.className = "status-message win";
   }

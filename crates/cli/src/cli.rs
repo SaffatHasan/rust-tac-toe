@@ -9,7 +9,7 @@ pub fn run() {
     loop {
         println!("{}", board_as_string(&engine));
         match engine.status {
-            GameStatus::Win(player) => {
+            GameStatus::Win { player, line: _ } => {
                 println!("Game over! Winner: {:?}", player);
                 if !start_new_game(&mut engine) {
                     break;

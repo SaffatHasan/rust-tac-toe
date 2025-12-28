@@ -18,7 +18,7 @@ impl Player {
 #[cfg_attr(feature = "wasm", derive(serde::Serialize))]
 #[cfg_attr(feature = "wasm", serde(tag = "type", content = "value"))]
 pub enum GameStatus {
-    Win(Player),
+    Win { player: Player, line: [usize; 3] },
     Draw,
     Ongoing,
 }
@@ -120,7 +120,10 @@ impl GameEngine {
             {
                 if p1 == p2 && p2 == p3 {
                     {
-                        return GameStatus::Win(p1);
+                        return GameStatus::Win {
+                            player: p1,
+                            line: [*a, *b, *c],
+                        };
                     }
                 }
             }
@@ -171,7 +174,13 @@ mod tests {
             let pos = Position::new(m).unwrap();
             let _ = engine.play_move(pos);
         }
-        assert_eq!(engine.status, GameStatus::Win(Player::X));
+        assert_eq!(
+            engine.status,
+            GameStatus::Win {
+                player: Player::X,
+                line: [0, 1, 2]
+            }
+        );
     }
 
     #[test]
@@ -193,7 +202,13 @@ mod tests {
             let pos = Position::new(m).unwrap();
             let _ = engine.play_move(pos);
         }
-        assert_eq!(engine.status, GameStatus::Win(Player::X));
+        assert_eq!(
+            engine.status,
+            GameStatus::Win {
+                player: Player::X,
+                line: [0, 3, 6]
+            }
+        );
     }
 
     #[test]
@@ -210,12 +225,23 @@ mod tests {
     #[test]
     fn test_serialize_game_status() {
         let mut engine = GameEngine::new();
-        engine.status = GameStatus::Win(Player::O);
-        let win = serde_json::to_string(&engine).unwrap();
+        engine.status = GameStatus::Win {
+            player: Player::O,
+            line: [0, 1, 2],
+        };
+        let win = serde_json::to_value(&engine).unwrap();
+        let expected = serde_json::json!({
+            "board": [null, null, null, null, null, null, null, null, null],
+            "currentPlayer": "X",
+            "status": {
+                "type": "Win",
+                "value": {
+                    "player": "O",
+                    "line": [0, 1, 2],
+                },
+            }
+        });
 
-        assert_eq!(
-            win,
-            r#"{"board":[null,null,null,null,null,null,null,null,null],"currentPlayer":"X","status":{"type":"Win","value":"O"}}"#
-        );
+        assert_eq!(win, expected,);
     }
 }
