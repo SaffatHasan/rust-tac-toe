@@ -9,33 +9,11 @@ pub enum Player {
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 #[cfg_attr(feature = "wasm", derive(serde::Serialize))]
+#[cfg_attr(feature = "wasm", serde(tag = "type", content = "value"))]
 pub enum GameStatus {
     Win(Player),
     Draw,
     Ongoing,
-}
-
-fn serialize_game_status<S>(game_status: &GameStatus, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    match game_status {
-        GameStatus::Ongoing => serializer.serialize_str("Ongoing"),
-        GameStatus::Draw => serializer.serialize_str("Draw"),
-        GameStatus::Win(player) => serialize_winner(player, serializer),
-    }
-}
-
-fn serialize_winner<S>(player: &Player, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-{
-    let s_str = match player {
-        Player::X => "WinX",
-        Player::O => "WinO",
-        _ => "None",
-    };
-    serializer.serialize_str(s_str)
 }
 
 /// Represents errors that can occur when handling game events.
@@ -80,7 +58,6 @@ pub enum GameEvent {
 pub struct GameEngine {
     pub board: [Player; 9],
     pub current_player: Player,
-    #[serde(serialize_with = "serialize_game_status")]
     pub status: GameStatus,
 }
 
