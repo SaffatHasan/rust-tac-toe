@@ -25,27 +25,38 @@ async function initializeGame() {
   }
 }
 
+// Store elements for reuse to avoid re-creating them
+let cellElements = [];
+
 function renderBoard() {
   const boardDiv = document.getElementById("board");
-  boardDiv.innerHTML = "";
-
   const state = game.get_state();
   const board = state.board;
+  const gameStatus = state.status.type;
 
-  for (let i = 0; i < 9; i++) {
-    const cell = document.createElement("button");
-    cell.className = "cell";
-    cell.textContent = board[i];
-    if (board[i] === "X") cell.classList.add("x");
-    if (board[i] === "O") cell.classList.add("o");
-
-    const isGameOver = state.status.type !== "Ongoing";
-    const isOccupied = board[i] !== undefined;
-    cell.disabled = isGameOver || isOccupied;
-
-    cell.onclick = () => makeMove(i);
-    boardDiv.appendChild(cell);
+  if (boardDiv.childElementCount === 0) {
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement("button");
+      cell.className = "cell";
+      cell.onclick = () => makeMove(i);
+      boardDiv.appendChild(cell);
+      cellElements.push(cell);
+    }
+    return;
   }
+
+  // Otherwise update existing
+  cellElements.forEach((cell, i) => {
+    const val = board[i];
+    cell.textContent = val;
+    cell.className = `cell`;
+    if (val === "X") cell.classList.add("x");
+    if (val === "O") cell.classList.add("o");
+
+    const isGameOver = gameStatus !== "Ongoing";
+    const isOccupied = val !== undefined;
+    cell.disabled = isGameOver || isOccupied;
+  });
 }
 
 function updateStatus() {
