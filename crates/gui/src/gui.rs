@@ -56,7 +56,6 @@ impl TicTacToeApp {
                 let player_text = match self.engine.current_player {
                     Player::X => "❌ X's Turn",
                     Player::O => "⭕ O's Turn",
-                    Player::None => "Error",
                 };
                 ui.label(egui::RichText::new(player_text).size(18.0).strong());
             }
@@ -64,7 +63,6 @@ impl TicTacToeApp {
                 let winner_text = match winner {
                     Player::X => "🎉 X Wins!",
                     Player::O => "🎉 O Wins!",
-                    Player::None => "Error",
                 };
                 ui.label(
                     egui::RichText::new(winner_text)
@@ -99,16 +97,15 @@ impl TicTacToeApp {
                     let cell = self.engine.board[idx];
 
                     let (symbol, color) = match cell {
-                        Player::X => ("X", egui::Color32::from_rgb(220, 50, 50)),
-                        Player::O => ("O", egui::Color32::from_rgb(50, 110, 220)),
-                        Player::None => ("", egui::Color32::BLACK),
+                        Some(Player::X) => ("X", egui::Color32::from_rgb(220, 50, 50)),
+                        Some(Player::O) => ("O", egui::Color32::from_rgb(50, 110, 220)),
+                        None => ("", egui::Color32::BLACK),
                     };
 
-                    let can_click =
-                        self.engine.status == GameStatus::Ongoing && cell == Player::None;
+                    let can_click = self.engine.status == GameStatus::Ongoing && cell == None;
 
                     let mut rich = egui::RichText::new(symbol).size((cell_size * 0.5).max(18.0));
-                    if cell != Player::None {
+                    if cell != None {
                         rich = rich.color(color).strong();
                     }
 
@@ -139,7 +136,7 @@ impl TicTacToeApp {
     }
 }
 
-fn winning_line(board: &[Player; 9]) -> Option<[usize; 3]> {
+fn winning_line(board: &[Option<Player>; 9]) -> Option<[usize; 3]> {
     let winning_combinations: [[usize; 3]; 8] = [
         [0, 1, 2],
         [3, 4, 5],
@@ -152,11 +149,11 @@ fn winning_line(board: &[Player; 9]) -> Option<[usize; 3]> {
     ];
 
     for combo in winning_combinations {
-        if board[combo[0]] != Player::None
-            && board[combo[0]] == board[combo[1]]
-            && board[combo[1]] == board[combo[2]]
+        if let (Some(p1), Some(p2), Some(p3)) = (board[combo[0]], board[combo[1]], board[combo[2]])
         {
-            return Some(combo);
+            if p1 == p2 && p2 == p3 {
+                return Some(combo);
+            }
         }
     }
     None
@@ -208,22 +205,22 @@ mod gui_unit_tests {
 
     #[test]
     fn winning_line_detects_horizontal_and_diagonal() {
-        let mut b = [Player::None; 9];
-        b[0] = Player::X;
-        b[1] = Player::X;
-        b[2] = Player::X;
+        let mut b = [None; 9];
+        b[0] = Some(Player::X);
+        b[1] = Some(Player::X);
+        b[2] = Some(Player::X);
         assert_eq!(winning_line(&b), Some([0, 1, 2]));
 
-        let mut b2 = [Player::None; 9];
-        b2[0] = Player::O;
-        b2[4] = Player::O;
-        b2[8] = Player::O;
+        let mut b2 = [None; 9];
+        b2[0] = Some(Player::O);
+        b2[4] = Some(Player::O);
+        b2[8] = Some(Player::O);
         assert_eq!(winning_line(&b2), Some([0, 4, 8]));
     }
 
     #[test]
     fn winning_line_none_when_no_winner() {
-        let b = [Player::None; 9];
+        let b: [Option<Player>; 9] = [None; 9];
         assert_eq!(winning_line(&b), None);
     }
 }

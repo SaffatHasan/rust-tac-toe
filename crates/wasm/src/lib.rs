@@ -72,7 +72,7 @@ mod tests {
         let wasm_engine = WasmGameEngine { engine };
 
         let state_json = wasm_engine.get_state();
-        let expected_json = r#"{"board":["X","O","","X","O","","X","",""],"currentPlayer":"","status":{"type":"Win","value":"X"}}"#;
+        let expected_json = r#"{"board":["X","O",null,"X","O",null,"X",null,null],"currentPlayer":"O","status":{"type":"Win","value":"X"}}"#;
 
         assert_eq!(state_json, expected_json);
     }

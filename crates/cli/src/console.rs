@@ -47,9 +47,9 @@ pub fn board_as_string(engine: &GameEngine) -> String {
     for i in (0..9).step_by(3) {
         // Map the Player enum to a string for display
         let get_char = |idx: usize| match engine.board[idx] {
-            Player::X => "X",
-            Player::O => "O",
-            Player::None => " ", // Space looks cleaner than a dot
+            Some(Player::X) => "X",
+            Some(Player::O) => "O",
+            None => " ",
         };
 
         // Print the row with vertical dividers
@@ -142,7 +142,7 @@ mod tests {
         let mut engine = GameEngine::new();
         engine.play_move(Position::new(0).unwrap()).unwrap();
         handle_input(&mut engine, "r");
-        assert_eq!(engine.board, [Player::None; 9]);
+        assert_eq!(engine.board, [None; 9]);
         assert_eq!(engine.current_player, Player::X);
         assert_eq!(engine.status, GameStatus::Ongoing);
     }

@@ -3,8 +3,6 @@
 pub enum Player {
     X,
     O,
-    #[serde(rename = "")]
-    None,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -50,7 +48,7 @@ impl Position {
 #[cfg_attr(feature = "wasm", derive(serde::Serialize))]
 #[serde(rename_all = "camelCase")]
 pub struct GameEngine {
-    pub board: [Player; 9],
+    pub board: [Option<Player>; 9],
     pub current_player: Player,
     pub status: GameStatus,
 }
@@ -58,7 +56,7 @@ pub struct GameEngine {
 impl GameEngine {
     pub fn new() -> Self {
         Self {
-            board: [Player::None; 9],
+            board: [None; 9],
             current_player: Player::X,
             status: GameStatus::Ongoing,
         }
@@ -75,7 +73,7 @@ impl GameEngine {
         }
 
         let pos: usize = pos.to_index();
-        self.board[pos] = self.current_player;
+        self.board[pos] = Some(self.current_player);
         self.update_game_status();
         self.update_current_player();
         Ok(())
@@ -86,22 +84,16 @@ impl GameEngine {
             return Err(InvalidGameMoveError::GameAlreadyWon);
         }
         let pos: usize = pos.to_index();
-        if self.board[pos] != Player::None {
+        if self.board[pos] != None {
             return Err(InvalidGameMoveError::SpaceOccupied);
         }
         Ok(())
     }
 
     pub fn update_current_player(&mut self) {
-        if self.status != GameStatus::Ongoing {
-            self.current_player = Player::None;
-            return;
-        }
-
         self.current_player = match self.current_player {
             Player::X => Player::O,
             Player::O => Player::X,
-            Player::None => Player::None,
         };
     }
 
@@ -113,7 +105,7 @@ impl GameEngine {
         }
 
         // Check draw (if no winner)
-        if self.board.iter().all(|&p| p != Player::None) {
+        if self.board.iter().all(|&p| p != None) {
             self.status = GameStatus::Draw;
             return;
         }
@@ -135,12 +127,17 @@ impl GameEngine {
         ];
 
         for combo in winning_combinations.iter() {
-            if self.board[combo[0]] != Player::None
-                && self.board[combo[0]] == self.board[combo[1]]
-                && self.board[combo[1]] == self.board[combo[2]]
-            {
-                self.status = GameStatus::Win(self.board[combo[0]]);
-                return;
+            if let (Some(p1), Some(p2), Some(p3)) = (
+                self.board[combo[0]],
+                self.board[combo[1]],
+                self.board[combo[2]],
+            ) {
+                if p1 == p2 && p2 == p3 {
+                    {
+                        self.status = GameStatus::Win(p1);
+                        return;
+                    }
+                }
             }
         }
     }
@@ -170,19 +167,11 @@ mod tests {
     }
 
     #[test]
-    fn test_update_next_player_none() {
-        let mut engine = GameEngine::new();
-        engine.current_player = Player::None;
-        engine.update_current_player();
-        assert_eq!(engine.current_player, Player::None);
-    }
-
-    #[test]
     fn test_play_move() {
         let mut engine = GameEngine::new();
         let pos = Position::new(0).unwrap();
         let _ = engine.play_move(pos);
-        assert_eq!(engine.board[0], Player::X);
+        assert_eq!(engine.board[0], Some(Player::X));
         assert_eq!(engine.current_player, Player::O);
     }
 
@@ -225,7 +214,7 @@ mod tests {
         let pos = Position::new(0).unwrap();
         let _ = engine.play_move(pos);
         engine.reset();
-        assert_eq!(engine.board, [Player::None; 9]);
+        assert_eq!(engine.board, [None; 9]);
         assert_eq!(engine.current_player, Player::X);
         assert_eq!(engine.status, GameStatus::Ongoing);
     }
@@ -238,7 +227,7 @@ mod tests {
 
         assert_eq!(
             win,
-            r#"{"board":["","","","","","","","",""],"currentPlayer":"X","status":{"type":"Win","value":"O"}}"#
+            r#"{"board":[null,null,null,null,null,null,null,null,null],"currentPlayer":"X","status":{"type":"Win","value":"O"}}"#
         );
     }
 }
