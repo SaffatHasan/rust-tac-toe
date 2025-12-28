@@ -29,7 +29,7 @@ function renderBoard() {
   const boardDiv = document.getElementById("board");
   boardDiv.innerHTML = "";
 
-  const state = JSON.parse(game.get_state());
+  const state = game.get_state();
   const board = state.board;
 
   for (let i = 0; i < 9; i++) {
@@ -40,7 +40,7 @@ function renderBoard() {
     if (board[i] === "O") cell.classList.add("o");
 
     const isGameOver = state.status.type !== "Ongoing";
-    const isOccupied = board[i] !== "";
+    const isOccupied = board[i] !== undefined;
     cell.disabled = isGameOver || isOccupied;
 
     cell.onclick = () => makeMove(i);
@@ -49,7 +49,7 @@ function renderBoard() {
 }
 
 function updateStatus() {
-  const state = JSON.parse(game.get_state());
+  const state = game.get_state();
 
   document.getElementById("currentPlayer").textContent = state.currentPlayer;
   document.getElementById("status").textContent = state.status.type;

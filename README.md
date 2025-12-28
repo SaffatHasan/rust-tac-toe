@@ -27,13 +27,14 @@ See the [Makefile](Makefile) for building and running commands.
 
 ## Screenshots
 
-| CLI                 | GUI                  | Web (WASM)          |
-| ------------------- | -------------------- | ------------------- |
+| CLI                 | GUI                 | Web (WASM)           |
+| ------------------- | ------------------- | -------------------- |
 | ![](assets/cli.png) | ![](assets/gui.png) | ![](assets/wasm.png) |
 
 ## Size Benchmarks
 
 - Standard: 22kB (9.9kB gzipped)
 - `wee_alloc`: 15.7kB (7.6kB gzipped)
+- `serde_wasm_bindgen`: 19.7k
 
 23% reduction in transfer size.

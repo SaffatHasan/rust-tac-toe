@@ -3,7 +3,7 @@
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 // Export engine types and functions
-pub use rust_tac_toe_engine::{GameEngine, GameStatus, InvalidGameMoveError, Player, Position};
+pub use rust_tac_toe_engine::{GameEngine, Position};
 
 use wasm_bindgen::prelude::*;
 
@@ -24,10 +24,12 @@ impl WasmGameEngine {
     }
 
     /// Play a move at the given position (0-8)
-    pub fn play_move(&mut self, position: u8) -> Result<(), String> {
-        let pos = Position::new(position).ok_or("Invalid position (must be 0-8)".to_string())?;
+    pub fn play_move(&mut self, position: u8) -> Result<(), JsError> {
+        let pos = Position::new(position).ok_or(JsError::new("Invalid position (must be 0-8)"))?;
 
-        self.engine.play_move(pos).map_err(|e| format!("{:?}", e))
+        self.engine
+            .play_move(pos)
+            .map_err(|e| JsError::new(&format!("{:?}", e)))
     }
 
     /// Reset the game
@@ -36,8 +38,9 @@ impl WasmGameEngine {
     }
 
     /// Get the complete game state as JSON
-    pub fn get_state(&self) -> String {
-        return serde_json::to_string(&self.engine).unwrap_or_else(|_| "{}".to_string());
+    pub fn get_state(&self) -> Result<JsValue, JsError> {
+        return serde_wasm_bindgen::to_value(&self.engine)
+            .map_err(|e| JsError::new(&format!("Serialization error: {}", e)));
     }
 
     /// Check if a move is valid at the given position
@@ -53,27 +56,4 @@ impl WasmGameEngine {
 #[wasm_bindgen(start)]
 pub fn init() {
     // Initialize WASM module
-}
-
-// tests
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rust_tac_toe_engine::{GameEngine, Position};
-
-    #[test]
-    fn test_get_state() {
-        let mut engine = GameEngine::new();
-
-        for &p in [0, 1, 3, 4, 6].iter() {
-            let _ = engine.play_move(Position::new(p).unwrap());
-        }
-
-        let wasm_engine = WasmGameEngine { engine };
-
-        let state_json = wasm_engine.get_state();
-        let expected_json = r#"{"board":["X","O",null,"X","O",null,"X",null,null],"currentPlayer":"O","status":{"type":"Win","value":"X"}}"#;
-
-        assert_eq!(state_json, expected_json);
-    }
 }
