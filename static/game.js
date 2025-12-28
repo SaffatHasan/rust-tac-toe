@@ -39,7 +39,7 @@ function renderBoard() {
     if (board[i] === "X") cell.classList.add("x");
     if (board[i] === "O") cell.classList.add("o");
 
-    const isGameOver = state.status !== "Ongoing";
+    const isGameOver = state.status.type !== "Ongoing";
     const isOccupied = board[i] !== "";
     cell.disabled = isGameOver || isOccupied;
 
@@ -52,20 +52,18 @@ function updateStatus() {
   const state = JSON.parse(game.get_state());
 
   document.getElementById("currentPlayer").textContent = state.currentPlayer;
-  document.getElementById("status").textContent = state.status;
+  document.getElementById("status").textContent = state.status.type;
 
   const statusMessage = document.getElementById("statusMessage");
-  if (state.status === "Ongoing") {
+  if (state.status.type === "Ongoing") {
     statusMessage.textContent = `${state.currentPlayer}'s turn`;
     statusMessage.className = "status-message ongoing";
-  } else if (state.status === "Draw") {
+  } else if (state.status.type === "Draw") {
     statusMessage.textContent = "🤝 It's a Draw!";
     statusMessage.className = "status-message draw";
-  } else if (state.status === "WinX") {
-    statusMessage.textContent = "🎉 X Wins!";
-    statusMessage.className = "status-message win";
-  } else if (state.status === "WinO") {
-    statusMessage.textContent = "🎉 O Wins!";
+  } else if (state.status.type === "Win") {
+    const winner = state.status.value;
+    statusMessage.textContent = `🎉 ${winner} Wins!`;
     statusMessage.className = "status-message win";
   }
 }

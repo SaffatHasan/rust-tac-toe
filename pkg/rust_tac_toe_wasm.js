@@ -73,10 +73,7 @@ export class WasmGameEngine {
      * Reset the game
      */
     reset() {
-        const ret = wasm.wasmgameengine_reset(this.__wbg_ptr);
-        if (ret[1]) {
-            throw takeFromExternrefTable0(ret[0]);
-        }
+        wasm.wasmgameengine_reset(this.__wbg_ptr);
     }
     /**
      * Get the complete game state as JSON
