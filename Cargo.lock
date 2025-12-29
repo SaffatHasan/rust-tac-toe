@@ -2168,7 +2168,6 @@ name = "rust-tac-toe-wasm"
 version = "0.1.0"
 dependencies = [
  "rust-tac-toe-engine",
- "serde",
  "serde-wasm-bindgen",
  "wasm-bindgen",
  "wee_alloc",
