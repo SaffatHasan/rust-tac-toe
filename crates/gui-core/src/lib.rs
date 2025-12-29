@@ -1,17 +1,13 @@
-//! eframe/egui GUI for Tic-Tac-Toe with full game logic integration.
-//!
-//! Provides a desktop GUI using the GameEngine from engine.rs.
-//! For wasm target later, enable eframe's `wasm` feature and use the web start API.
+//! eframe/egui Tic-Tac-Toe: Refined UI with stable layout and dark aesthetic.
 
 use eframe::{egui, App};
 use rust_tac_toe_engine::{GameEngine, GameStatus, Player, Position};
 
-// Layout constants
-const MIN_CELL: f32 = 40.0;
-const MAX_CELL: f32 = 200.0;
-const RESERVED_VERTICAL: f32 = 120.0; // estimated height used by headings/controls
+// Style Constants
+const BOARD_SIZE: f32 = 360.0;
+const CELL_GAP: f32 = 12.0;
+const CORNER_RADIUS: f32 = 10.0;
 
-/// The main eframe application for tic-tac-toe.
 pub struct TicTacToeApp {
     engine: GameEngine,
 }
@@ -26,163 +22,153 @@ impl Default for TicTacToeApp {
 
 impl App for TicTacToeApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        self.apply_terminal_theme(ctx);
+
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("🎮 Tic-Tac-Toe");
-            ui.separator();
+            // 1. Fixed Header Area (Prevents board from moving)
+            ui.add_space(30.0);
+            ui.vertical_centered(|ui| {
+                ui.heading(
+                    egui::RichText::new("TIC-TAC-TOE")
+                        .size(32.0)
+                        .strong()
+                        .extra_letter_spacing(2.0),
+                );
 
-            self.render_status(ui);
+                // Fixed height container for status so it doesn't push the board down
+                ui.allocate_ui(egui::vec2(ui.available_width(), 40.0), |ui| {
+                    ui.centered_and_justified(|ui| {
+                        self.render_status(ui);
+                    });
+                });
+            });
 
-            ui.separator();
+            ui.add_space(20.0);
 
-            let cell_size = compute_cell_size(ui.available_size());
-            self.render_board(ui, cell_size);
+            // 2. Centered Board with Fixed Dimensions
+            self.render_centered_board(ui);
 
-            ui.separator();
-
-            if ui
-                .button(egui::RichText::new("🔄 Reset Game").size(16.0))
-                .clicked()
-            {
-                self.engine.reset();
-            }
+            // 3. Footer
+            ui.add_space(30.0);
+            ui.vertical_centered(|ui| {
+                if ui
+                    .add(
+                        egui::Button::new(egui::RichText::new("NEW GAME").size(16.0).strong())
+                            .fill(egui::Color32::from_rgb(50, 50, 50))
+                            .min_size(egui::vec2(120.0, 40.0)),
+                    )
+                    .clicked()
+                {
+                    self.engine.reset();
+                }
+            });
         });
     }
 }
 
 impl TicTacToeApp {
-    fn render_status(&self, ui: &mut egui::Ui) {
-        match self.engine.status {
-            GameStatus::Ongoing => {
-                let player_text = match self.engine.current_player {
-                    Player::X => "❌ X's Turn",
-                    Player::O => "⭕ O's Turn",
-                };
-                ui.label(egui::RichText::new(player_text).size(18.0).strong());
-            }
-            GameStatus::Win {
-                player: winner,
-                line: _,
-            } => {
-                let winner_text = match winner {
-                    Player::X => "🎉 X Wins!",
-                    Player::O => "🎉 O Wins!",
-                };
-                ui.label(
-                    egui::RichText::new(winner_text)
-                        .size(20.0)
-                        .strong()
-                        .color(egui::Color32::GREEN),
-                );
-            }
-            GameStatus::Draw => {
-                ui.label(
-                    egui::RichText::new("🤝 It's a Draw!")
-                        .size(20.0)
-                        .strong()
-                        .color(egui::Color32::YELLOW),
-                );
-            }
-        }
+    fn apply_terminal_theme(&self, ctx: &egui::Context) {
+        let mut visuals = egui::Visuals::dark();
+
+        // Deep charcoal/navy background, not pure black
+        visuals.panel_fill = egui::Color32::from_rgb(18, 18, 22);
+        visuals.widgets.noninteractive.bg_fill = egui::Color32::from_rgb(30, 30, 35);
+        visuals.widgets.inactive.bg_fill = egui::Color32::from_rgb(40, 40, 45);
+        visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(50, 50, 60);
+
+        ctx.set_visuals(visuals);
+
+        let mut style: egui::Style = (*ctx.style()).clone();
+        style.visuals.widgets.inactive.rounding = CORNER_RADIUS.into();
+        ctx.set_style(style);
     }
 
-    fn render_board(&mut self, ui: &mut egui::Ui, cell_size: f32) {
-        // If game won, compute winning line to highlight
-        let winning = if let GameStatus::Win { line, .. } = self.engine.status {
-            Some(line)
-        } else {
-            None
+    fn render_status(&self, ui: &mut egui::Ui) {
+        let (text, color) = match self.engine.status {
+            GameStatus::Ongoing => match self.engine.current_player {
+                Player::X => ("X'S TURN", egui::Color32::from_rgb(255, 85, 85)),
+                Player::O => ("O'S TURN", egui::Color32::from_rgb(85, 170, 255)),
+            },
+            GameStatus::Win { player, .. } => (
+                "WINNER!",
+                if player == Player::X {
+                    egui::Color32::from_rgb(255, 85, 85)
+                } else {
+                    egui::Color32::from_rgb(85, 170, 255)
+                },
+            ),
+            GameStatus::Draw => ("DRAW", egui::Color32::LIGHT_GRAY),
         };
+        ui.label(egui::RichText::new(text).size(20.0).strong().color(color));
+    }
 
-        for row in 0..3 {
-            ui.horizontal(|ui| {
-                for col in 0..3 {
-                    let idx = row * 3 + col;
-                    let cell = self.engine.board[idx];
+    fn render_centered_board(&mut self, ui: &mut egui::Ui) {
+        let cell_size = (BOARD_SIZE - (2.0 * CELL_GAP)) / 3.0;
 
-                    let (symbol, color) = match cell {
-                        Some(Player::X) => ("X", egui::Color32::from_rgb(220, 50, 50)),
-                        Some(Player::O) => ("O", egui::Color32::from_rgb(50, 110, 220)),
-                        None => ("", egui::Color32::BLACK),
+        // Calculate the total width of the grid to center it manually
+        let total_grid_width = (cell_size * 3.0) + (CELL_GAP * 2.0);
+        let horizontal_padding = (ui.available_width() - total_grid_width) / 2.0;
+
+        ui.horizontal(|ui| {
+            // Push the grid to the center by adding space on the left
+            ui.add_space(horizontal_padding);
+
+            egui::Grid::new("ttt_grid")
+                .spacing(egui::vec2(CELL_GAP, CELL_GAP))
+                .show(ui, |ui| {
+                    let winning_line = if let GameStatus::Win { line, .. } = self.engine.status {
+                        Some(line)
+                    } else {
+                        None
                     };
 
-                    let can_click = self.engine.status == GameStatus::Ongoing && cell.is_none();
-
-                    let mut rich = egui::RichText::new(symbol).size((cell_size * 0.5).max(18.0));
-                    if cell.is_some() {
-                        rich = rich.color(color).strong();
-                    }
-
-                    let mut button =
-                        egui::Button::new(rich).min_size(egui::vec2(cell_size, cell_size));
-
-                    // Highlight winning cells even if not clickable
-                    if let Some([a, b, c]) = winning {
-                        if idx == a || idx == b || idx == c {
-                            button = button.fill(egui::Color32::from_rgb(240, 220, 120));
-                        } else if !can_click {
-                            button = button.fill(egui::Color32::DARK_GRAY);
+                    for row in 0..3 {
+                        for col in 0..3 {
+                            let idx = row * 3 + col;
+                            let is_win =
+                                winning_line.map_or(false, |l| l.contains(&(idx as usize)));
+                            self.render_cell(ui, idx, is_win, cell_size);
                         }
-                    } else if !can_click {
-                        button = button.fill(egui::Color32::DARK_GRAY);
+                        ui.end_row();
                     }
+                });
+        });
+    }
 
-                    if ui.add(button).clicked() {
-                        if can_click {
-                            if let Some(pos) = Position::new(idx as u8) {
-                                let _ = self.engine.play_move(pos);
-                            }
-                        }
-                    }
-                }
-            });
+    fn render_cell(&mut self, ui: &mut egui::Ui, idx: usize, is_win: bool, size: f32) {
+        let cell = self.engine.board[idx];
+        let (symbol, color) = match cell {
+            Some(Player::X) => ("X", egui::Color32::from_rgb(255, 85, 85)),
+            Some(Player::O) => ("O", egui::Color32::from_rgb(85, 170, 255)),
+            None => ("", egui::Color32::TRANSPARENT),
+        };
+
+        let can_click = self.engine.status == GameStatus::Ongoing && cell.is_none();
+
+        let mut button = egui::Button::new(
+            egui::RichText::new(symbol)
+                .size(size * 0.6)
+                .strong()
+                .color(color),
+        )
+        .min_size(egui::vec2(size, size));
+
+        // Highlight winning line with a subtle glow, otherwise keep dark
+        if is_win {
+            button = button.fill(egui::Color32::from_rgba_unmultiplied(255, 255, 255, 20));
+            button = button.stroke(egui::Stroke::new(2.0, color));
+        } else {
+            button = button.fill(egui::Color32::from_rgb(35, 35, 40));
+        }
+
+        if ui
+            .add_enabled(can_click || cell.is_some(), button)
+            .clicked()
+            && can_click
+        {
+            if let Some(pos) = Position::new(idx as u8) {
+                let _ = self.engine.play_move(pos);
+            }
         }
     }
 }
-
-fn compute_cell_size(avail: egui::Vec2) -> f32 {
-    let cell_w = (avail.x - 24.0) / 3.0;
-    let cell_h = ((avail.y - RESERVED_VERTICAL) / 3.0).max(MIN_CELL);
-    cell_w.min(cell_h).clamp(MIN_CELL, MAX_CELL)
-}
-
-#[cfg(test)]
-mod gui_unit_tests {
-    use super::*;
-
-    #[test]
-    fn compute_cell_size_min_clamps() {
-        let avail = egui::vec2(100.0, 300.0);
-        let s = compute_cell_size(avail);
-        assert!(s >= MIN_CELL);
-    }
-
-    #[test]
-    fn compute_cell_size_max_clamps() {
-        let avail = egui::vec2(1200.0, 1000.0);
-        let s = compute_cell_size(avail);
-        assert!(s <= MAX_CELL);
-    }
-
-    #[test]
-    fn compute_cell_size_expected_value() {
-        let avail = egui::vec2(360.0, 500.0);
-        let s = compute_cell_size(avail);
-        // expected roughly (360 - 24) / 3 = 112
-        assert!((s - 112.0).abs() < 2.0);
-    }
-}
-
-/*
-For wasm (future):
-
-- Add to `Cargo.toml`:
-    eframe = { version = "...", features = ["wgpu", "glow", "wasm"] }
-
-- Example start for web (not active now):
-    #[cfg(target_arch = "wasm32")]
-    pub fn start_web() {
-            // eframe provides helpers (e.g. start_web) behind wasm feature flags.
-            // See eframe docs for the exact web startup snippet.
-    }
-
-*/
