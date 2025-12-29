@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 rust-tac-toe-gui-core = { path = "../gui-core" }
+eframe = { version = "0.24" }
 
 
 [target.'cfg(windows)'.dependencies]

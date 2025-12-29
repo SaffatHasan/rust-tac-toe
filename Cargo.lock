@@ -2159,6 +2159,7 @@ dependencies = [
 name = "rust-tac-toe-gui-exe"
 version = "0.1.0"
 dependencies = [
+ "eframe",
  "rust-tac-toe-gui-core",
  "winapi",
 ]

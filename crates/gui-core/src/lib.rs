@@ -145,17 +145,6 @@ fn compute_cell_size(avail: egui::Vec2) -> f32 {
     cell_w.min(cell_h).clamp(MIN_CELL, MAX_CELL)
 }
 
-/// Run the app natively (desktop).
-pub fn run_desktop() {
-    let mut native_options = eframe::NativeOptions::default();
-    native_options.viewport = egui::ViewportBuilder::default().with_inner_size([380.0, 500.0]);
-    let _ = eframe::run_native(
-        "Rust Tic-Tac-Toe",
-        native_options,
-        Box::new(|_cc| Box::new(TicTacToeApp::default())),
-    );
-}
-
 #[cfg(test)]
 mod gui_unit_tests {
     use super::*;
