@@ -1,0 +1,16 @@
+[package]
+name = "rust-tac-toe-gui-wasm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Local dependency
+rust-tac-toe-gui-core = { path = "../gui-core" }
+wasm-bindgen = { version = "0.2" }
+eframe = { version = "0.24" }
+
+wasm-bindgen-futures = "0.4"
+console_error_panic_hook = "0.1"
+
+[lib]
+crate-type = ["cdylib"]

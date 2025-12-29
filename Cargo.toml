@@ -4,6 +4,7 @@ members = [
     "crates/engine",
     "crates/gui-core",
     "crates/gui-exe",
+    "crates/gui-wasm",
     "crates/wasm",
 ]
 # Ensures modern feature resolution
