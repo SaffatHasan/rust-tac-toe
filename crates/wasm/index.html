@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rust Tic-Tac-Toe - WebAssembly</title>
-    <link rel="stylesheet" href="static/style.css" />
+    <link data-trunk rel="css" href="static/style.css" />
   </head>
   <body>
     <div class="container">
@@ -33,7 +33,7 @@
         <p>Loading WebAssembly...</p>
       </div>
     </div>
-
-    <script type="module" src="static/game.js"></script>
+    <link rel="rust" data-trunk href="Cargo.toml" data-integrity="none" />
+    <script data-trunk src="static/game.js"></script>
   </body>
 </html>

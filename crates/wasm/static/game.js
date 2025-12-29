@@ -1,12 +1,16 @@
 let game;
 
-// Import the WASM module
-import init, { WasmGameEngine } from "../pkg/rust_tac_toe_wasm.js";
-
 async function initializeGame() {
   try {
-    // Initialize the WASM module
-    await init();
+    // Trunk automatically initializes wasm_bindgen.
+    // Access via global object.
+    const bindings = window.wasmBindings;
+    if (!bindings) {
+      throw new Error(
+        "WASM bindings not found. Ensure Trunk is set up correctly."
+      );
+    }
+    const { WasmGameEngine } = bindings;
 
     // Create a new game instance
     game = new WasmGameEngine();
@@ -106,4 +110,6 @@ window.resetGame = function () {
 };
 
 // Initialize the game when the page loads
-initializeGame();
+window.addEventListener("TrunkApplicationStarted", () => {
+  initializeGame();
+});
