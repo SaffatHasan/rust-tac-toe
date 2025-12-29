@@ -55,7 +55,7 @@ impl Position {
 
 #[derive(Copy, Clone)]
 #[cfg_attr(feature = "wasm", derive(serde::Serialize))]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "wasm", serde(rename_all = "camelCase"))]
 pub struct GameEngine {
     pub board: [Option<Player>; 9],
     pub current_player: Player,

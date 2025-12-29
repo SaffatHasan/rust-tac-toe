@@ -1,0 +1,13 @@
+[package]
+name = "rust-tac-toe-gui-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rust-tac-toe-engine = { path = "../engine" }
+eframe = { version = "0.24" }
+
+
+[target.'cfg(windows)'.dependencies]
+# Ensure `winapi` features required by eframe are enabled on Windows
+winapi = { version = "0.3", features = ["winuser", "windef"] }

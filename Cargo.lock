@@ -2147,11 +2147,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-tac-toe-gui"
+name = "rust-tac-toe-gui-core"
 version = "0.1.0"
 dependencies = [
  "eframe",
  "rust-tac-toe-engine",
+ "winapi",
+]
+
+[[package]]
+name = "rust-tac-toe-gui-exe"
+version = "0.1.0"
+dependencies = [
+ "rust-tac-toe-gui-core",
  "winapi",
 ]
 

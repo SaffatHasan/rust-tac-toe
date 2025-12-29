@@ -1,4 +1,10 @@
 [workspace]
-members = ["crates/engine", "crates/cli", "crates/gui", "crates/wasm"]
+members = [
+    "crates/cli",
+    "crates/engine",
+    "crates/gui-core",
+    "crates/gui-exe",
+    "crates/wasm",
+]
 # Ensures modern feature resolution
 resolver = "2"
