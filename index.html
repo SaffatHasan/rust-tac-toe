@@ -2,38 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rust Tic-Tac-Toe - WebAssembly</title>
-    <link rel="stylesheet" href="static/style.css" />
+    <title>Rust Tic-Tac-Toe Portal</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: #f0f2f5;
+      }
+      .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .btn {
+        display: inline-block;
+        margin: 10px;
+        padding: 15px 30px;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+      }
+      .gui {
+        background: #667eea;
+      }
+      .wasm {
+        background: #764ba2;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
-      <h1>🎮 Tic-Tac-Toe</h1>
-      <div id="content" style="display: none">
-        <div class="info-panel">
-          <div class="info-item">
-            <span class="label">Current Player:</span>
-            <span class="value" id="currentPlayer">X</span>
-          </div>
-          <div class="info-item">
-            <span class="label">Status:</span>
-            <span class="value" id="status">Ongoing</span>
-          </div>
-        </div>
-
-        <div class="status-message" id="statusMessage"></div>
-
-        <div class="board" id="board"></div>
-
-        <div class="controls">
-          <button class="reset-btn" onclick="resetGame()">Reset Game</button>
-        </div>
-      </div>
-      <div id="loading" class="loading">
-        <p>Loading WebAssembly...</p>
-      </div>
+      <h1>Tic-Tac-Toe Versions</h1>
+      <a href="gui-wasm/" class="btn gui">Eframe GUI Version</a>
+      <a href="wasm/" class="btn wasm">HTML/JS Version</a>
     </div>
-
-    <script type="module" src="static/game.js"></script>
   </body>
 </html>
