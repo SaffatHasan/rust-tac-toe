@@ -28,12 +28,12 @@ jobs:
 
           # Build GUI
           cd crates/gui-wasm
-          trunk build --release --dist ../../dist/gui-wasm --public-url gui-wasm/ index.html
+          trunk build --release --dist ../../dist/gui-wasm --public-url /rust-tac-toe/gui-wasm index.html
           cd ../..
 
           # Build Core
           cd crates/wasm
-          trunk build --release --dist ../../dist/wasm --public-url wasm/ index.html
+          trunk build --release --dist ../../dist/wasm --public-url /rust-tac-toe/wasm index.html
           cd ../..
 
           # Root file
