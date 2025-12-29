@@ -1,45 +1,45 @@
-name: Deploy to GitHub Pages
-
+name: Deploy
 on:
   push:
-    branches: [ main ]
+    branches: ["main"]
 
 permissions:
-    contents: write
+  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Install wasm-pack
-        run: cargo install wasm-pack
+      - name: Fetch Trunk
+        uses: jetli/trunk-action@v0.5.1
+        with:
+          version: "latest"
 
-      - name: Build WASM
-        # We build in release mode for smaller file sizes
-        run: wasm-pack build crates/wasm --target web --release
-
-      - name: Prepare Distribution Folder
-        # Create a 'dist' folder and move index.html and the pkg folder into it
+      - name: Build and Prep
         run: |
-          mkdir dist/
-          mkdir dist/pkg
-          mkdir dist/static
-          cp crates/wasm/index.html dist/
-          cp crates/wasm/pkg/rust_tac_toe_wasm.js dist/pkg/
-          cp crates/wasm/pkg/rust_tac_toe_wasm_bg.wasm dist/pkg/
-          cp crates/wasm/static/style.css dist/static/
-          cp crates/wasm/static/game.js dist/static/
+          mkdir dist
 
-      - name: Deploy to GitHub Pages
+          # Build GUI
+          cd crates/gui-wasm
+          trunk build --release --dist ../../dist/gui-wasm --public-url gui-wasm/ index.html
+          cd ../..
+
+          # Build Core
+          cd crates/wasm
+          trunk build --release --dist ../../dist/wasm --public-url wasm/ index.html
+          cd ../..
+
+          # Root file
+          cp root_index.html dist/index.html
+
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist # The folder the action should push to gh-pages
-          branch: gh-pages
+          folder: dist
