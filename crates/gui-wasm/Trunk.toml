@@ -1,0 +1,6 @@
+[build]
+target = "index.html"
+dist = "../../dist/gui-wasm"
+
+[serve]
+public_url = "gui-wasm/"
