@@ -143,8 +143,6 @@ impl TicTacToeApp {
             None => ("", egui::Color32::TRANSPARENT),
         };
 
-        let can_click = self.engine.status == GameStatus::Ongoing && cell.is_none();
-
         let mut button = egui::Button::new(
             egui::RichText::new(symbol)
                 .size(size * 0.6)
@@ -161,13 +159,16 @@ impl TicTacToeApp {
             button = button.fill(egui::Color32::from_rgb(35, 35, 40));
         }
 
+        let can_click = self.engine.status == GameStatus::Ongoing && cell.is_none();
         if ui
-            .add_enabled(can_click || cell.is_some(), button)
-            .clicked()
+            .add_enabled(can_click, button)
+            .is_pointer_button_down_on()
             && can_click
         {
-            if let Some(pos) = Position::new(idx as u8) {
-                let _ = self.engine.play_move(pos);
+            {
+                if let Some(pos) = Position::new(idx as u8) {
+                    let _ = self.engine.play_move(pos);
+                }
             }
         }
     }
