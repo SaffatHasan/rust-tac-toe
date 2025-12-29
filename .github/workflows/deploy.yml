@@ -25,21 +25,18 @@ jobs:
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2 
 
-      - name: Build and Prep
+      - name: Build GUI
+        working-directory: crates/gui-wasm
         run: |
-          mkdir dist
-
-          # Build GUI
-          cd crates/gui-wasm
           trunk build --release --public-url /rust-tac-toe/gui-wasm index.html
-          cd ../..
 
-          # Build Core
-          cd crates/wasm
+      - name: Build WASM
+        working-directory: crates/wasm
+        run: |
           trunk build --release --public-url /rust-tac-toe/wasm index.html
-          cd ../..
 
-          # Root file
+      - name: Add root_index.html to dist
+        run: |
           cp root_index.html dist/index.html
 
       - name: Deploy
