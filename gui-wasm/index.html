@@ -25,8 +25,8 @@
     </style>
     
 <script type="module">
-import init, * as bindings from 'gui-wasm/rust-tac-toe-gui-wasm-dee5c788454a163c.js';
-const wasm = await init({ module_or_path: 'gui-wasm/rust-tac-toe-gui-wasm-dee5c788454a163c_bg.wasm' });
+import init, * as bindings from './gui-wasm/rust-tac-toe-gui-wasm-dee5c788454a163c.js';
+const wasm = await init({ module_or_path: './gui-wasm/rust-tac-toe-gui-wasm-dee5c788454a163c_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -35,7 +35,7 @@ window.wasmBindings = bindings;
 dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 
 </script>
-  <link rel="modulepreload" href="gui-wasm/rust-tac-toe-gui-wasm-dee5c788454a163c.js" crossorigin="anonymous" integrity="sha384-yVjLKLCBubHsVf9hGcJYiE89/MyI4OgSjEhMeKeO68MUxgpOSkcdkpkNvEoAP97z"><link rel="preload" href="gui-wasm/rust-tac-toe-gui-wasm-dee5c788454a163c_bg.wasm" crossorigin="anonymous" integrity="sha384-TrAX1yBADFzW5YzcimfeZusNPz+ze+6jxNIWZn5wMzuPaPfg96yQVcdzWDG4IjYe" as="fetch" type="application/wasm"></head>
+  <link rel="modulepreload" href="./gui-wasm/rust-tac-toe-gui-wasm-dee5c788454a163c.js" crossorigin="anonymous" integrity="sha384-3cYtC1ehGdKlAVoIEU0p0Qxu1l8+r0qk0r9x7QWhbWV+gv6uIOxVGB2+nmMboXdu"><link rel="preload" href="./gui-wasm/rust-tac-toe-gui-wasm-dee5c788454a163c_bg.wasm" crossorigin="anonymous" integrity="sha384-19437vsNMUT7LHSBwjbxoTGxKtStlcIlfP+QeY3rkn+TsKJTZ9Inkdv/GRgLzLhN" as="fetch" type="application/wasm"></head>
   <body>
     <canvas id="the_canvas_id"></canvas>
   </body>

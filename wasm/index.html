@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rust Tic-Tac-Toe - WebAssembly</title>
-    <link rel="stylesheet" href="wasm/style-5b0b007e1813be0b.css" integrity="sha384-Z79NAO2V/I9re49Hc5yfQ1Z3QFJCSSLcxPI4ak6rRDMTG+jV0/HWbQob+wl4w+GF"/>
-  <link rel="modulepreload" href="wasm/rust-tac-toe-wasm-760307df0a8f54d0.js" crossorigin="anonymous"><link rel="preload" href="wasm/rust-tac-toe-wasm-760307df0a8f54d0_bg.wasm" crossorigin="anonymous" as="fetch" type="application/wasm"></head>
+    <link rel="stylesheet" href="./wasm/style-5b0b007e1813be0b.css" integrity="sha384-Z79NAO2V/I9re49Hc5yfQ1Z3QFJCSSLcxPI4ak6rRDMTG+jV0/HWbQob+wl4w+GF"/>
+  <link rel="modulepreload" href="./wasm/rust-tac-toe-wasm-760307df0a8f54d0.js" crossorigin="anonymous"><link rel="preload" href="./wasm/rust-tac-toe-wasm-760307df0a8f54d0_bg.wasm" crossorigin="anonymous" as="fetch" type="application/wasm"></head>
   <body>
     <div class="container">
       <h1>🎮 Tic-Tac-Toe</h1>
@@ -35,8 +35,8 @@
     </div>
     
 <script type="module">
-import init, * as bindings from 'wasm/rust-tac-toe-wasm-760307df0a8f54d0.js';
-const wasm = await init({ module_or_path: 'wasm/rust-tac-toe-wasm-760307df0a8f54d0_bg.wasm' });
+import init, * as bindings from './wasm/rust-tac-toe-wasm-760307df0a8f54d0.js';
+const wasm = await init({ module_or_path: './wasm/rust-tac-toe-wasm-760307df0a8f54d0_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -45,6 +45,6 @@ window.wasmBindings = bindings;
 dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 
 </script>
-    <script src="wasm/game-5ffd465092db1ddd.js" integrity="sha384-Mcgt0APgt128Wy6huQlP9ZOeexydiOSpO+HD2KA19AMBm/SzWvxWUNPreHNuP04v"></script>
+    <script src="./wasm/game-5ffd465092db1ddd.js" integrity="sha384-Mcgt0APgt128Wy6huQlP9ZOeexydiOSpO+HD2KA19AMBm/SzWvxWUNPreHNuP04v"></script>
   </body>
 </html>
